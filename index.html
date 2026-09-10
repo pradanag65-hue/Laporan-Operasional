@@ -236,6 +236,8 @@ thead th{
   border-bottom:1px solid var(--line);
   white-space:nowrap;
 }
+thead th.sep-left{border-left:2px solid var(--line);}
+tbody td.sep-left{border-left:2px solid var(--line);}
 tbody td{
   padding:8px 10px;
   border-bottom:1px solid var(--paper-2);
@@ -294,6 +296,18 @@ button.icon-btn{
   padding:4px 8px;border-radius:6px;
 }
 button.icon-btn:hover{background:#fbe9e5;}
+.period-toggle{
+  display:flex;gap:4px;background:var(--paper-2);
+  padding:4px;border-radius:9px;flex-shrink:0;
+}
+.period-toggle button{
+  all:unset;cursor:pointer;
+  padding:7px 13px;border-radius:6px;
+  font-size:12.5px;font-weight:500;
+  color:var(--ink-soft);
+}
+.period-toggle button.active{background:var(--teal-800);color:#fff;}
+.period-toggle button:hover:not(.active){background:rgba(15,107,92,0.08);}
 .empty-state{
   padding:28px 20px;
   text-align:center;
@@ -386,6 +400,34 @@ button.icon-btn:hover{background:#fbe9e5;}
         <h3>Kecepatan Rata-rata Armada</h3>
         <div class="hint">Rata-rata seluruh trayek per bulan (km/jam)</div>
         <canvas id="chartKecepatanTren" style="max-height:200px;"></canvas>
+      </div>
+
+      <div class="table-wrap" style="margin-top:16px;">
+        <div class="table-head-row" style="display:flex;justify-content:space-between;align-items:flex-start;flex-wrap:wrap;gap:12px;padding-bottom:12px;">
+          <div>
+            <h3 style="margin:0;font-size:14.5px;">Perbandingan Data per Trayek</h3>
+            <div class="hint" id="lfHint" style="margin-bottom:0;">Data bulanan Januari&ndash;Juli 2026.</div>
+          </div>
+          <div style="display:flex;align-items:center;gap:8px;flex-wrap:wrap;">
+            <select id="compareMetricSelect" style="min-width:180px;">
+              <option value="loadfactor">Load Factor</option>
+              <option value="headway">Headway</option>
+              <option value="kecepatan">Kecepatan Rata-rata</option>
+              <option value="rtt">RTT</option>
+              <option value="kmtempuh">Km Tempuh</option>
+              <option value="ritase">Ritase</option>
+              <option value="penumpang">Jumlah Penumpang</option>
+            </select>
+            <div class="period-toggle" id="lfPeriodToggle">
+              <button data-period="bulanan" class="active">Bulanan</button>
+              <button data-period="triwulan">Triwulan</button>
+              <button data-period="semester">Semester</button>
+              <button data-period="tahunan">Tahunan</button>
+            </div>
+            <button class="ghost" id="btnExportLf">Export CSV</button>
+          </div>
+        </div>
+        <table id="loadFactorCompareTable"></table>
       </div>
     </section>
 
@@ -676,6 +718,171 @@ function buildRingkasan(){
     },
     options: baseLineOpts((v)=> v==null?'-':v.toFixed(1)+' km/j')
   });
+
+  buildCompareTable();
+}
+
+// ---- urutan trayek tetap sesuai standar operasional (bukan diurutkan by value) ----
+const ROUTE_ORDER = ['1A','1B','2A','2B','3A','3B','4A','4B','5A','5B','6','8','9','10','11','12','13','14','15','EV'];
+function routeLabel(code){ return code === 'EV' ? 'Listrik' : code; }
+
+// ---- konfigurasi tiap metrik yang bisa dipilih di tabel perbandingan ----
+const METRICS_CONFIG = {
+  loadfactor: { label:'Load Factor', unit:'%', source:R.loadfactor, months:R.months7,
+    fmt:(v)=> v==null?'-':fmtPct(v), num:(v)=> v==null?null:v*100 },
+  headway: { label:'Headway', unit:'menit', source:R.headway, months:R.months8,
+    fmt:(v)=> v==null?'-':v.toFixed(1), num:(v)=>v },
+  kecepatan: { label:'Kecepatan Rata-rata', unit:'km/jam', source:R.kecepatan, months:R.months8,
+    fmt:(v)=> v==null?'-':v.toFixed(1), num:(v)=>v },
+  rtt: { label:'RTT', unit:'menit', source:R.rtt, months:R.months8,
+    fmt:(v)=> v==null?'-':v.toFixed(1), num:(v)=>v },
+  kmtempuh: { label:'Km Tempuh', unit:'km', source:R.kmtempuh, months:R.months8,
+    fmt:(v)=> v==null?'-':fmtInt(v), num:(v)=>v },
+  ritase: { label:'Ritase', unit:'rit', source:R.ritase, months:R.months8,
+    fmt:(v)=> v==null?'-':fmtInt(v), num:(v)=>v },
+  penumpang: { label:'Jumlah Penumpang', unit:'orang', source:R.penumpang, months:R.months7,
+    fmt:(v)=> v==null?'-':fmtInt(v), num:(v)=>v },
+};
+
+let compareMetricKey = 'loadfactor';
+let comparePeriodMode = 'bulanan';
+let compareRowsCache = [];
+
+function buildCompareTable(){
+  document.getElementById('compareMetricSelect').addEventListener('change', (e)=>{
+    compareMetricKey = e.target.value;
+    rebuildCompareRows();
+    renderCompareTable();
+  });
+
+  document.getElementById('lfPeriodToggle').addEventListener('click', (e)=>{
+    const btn = e.target.closest('button[data-period]');
+    if(!btn) return;
+    comparePeriodMode = btn.dataset.period;
+    document.querySelectorAll('#lfPeriodToggle button').forEach(b=>b.classList.remove('active'));
+    btn.classList.add('active');
+    renderCompareTable();
+  });
+
+  document.getElementById('btnExportLf').addEventListener('click', exportCompareCsv);
+
+  rebuildCompareRows();
+  renderCompareTable();
+}
+
+// Susun ulang data mentah jadi baris per trayek (urutan ROUTE_ORDER tetap),
+// masing-masing sudah berisi rata-rata triwulan/semester/tahunan siap pakai.
+function rebuildCompareRows(){
+  const cfg = METRICS_CONFIG[compareMetricKey];
+  compareRowsCache = ROUTE_ORDER.map(code=>{
+    const found = cfg.source.find(x=>x[0]===code);
+    const raw = found ? found[1] : [];
+    const n = cfg.months.length;
+    const v = [];
+    for(let i=0;i<n;i++) v.push(typeof raw[i]==='number' ? raw[i] : null);
+    return {
+      code, v,
+      tw1: avg(v.slice(0,3)),
+      tw2: avg(v.slice(3,6)),
+      tw3: avg(v.slice(6,9)),
+      sem1: avg(v.slice(0,6)),
+      sem2: avg(v.slice(6,12)),
+      tahunan: avg(v),
+    };
+  });
+}
+
+// Menentukan kolom yang ditampilkan sesuai mode periode + metrik yang aktif.
+function getCompareColumnsForMode(mode){
+  const cfg = METRICS_CONFIG[compareMetricKey];
+  const months = cfg.months;
+  const n = months.length; // 7 (load factor/penumpang) atau 8 (metrik lain)
+
+  if(mode === 'bulanan'){
+    return {
+      columns: months.map((m,i)=>({ label:m, get:(r)=>r.v[i] })),
+      hint: `Data bulanan ${months[0]}\u2013${months[n-1]} 2026.`,
+    };
+  }
+  if(mode === 'triwulan'){
+    const cols = [
+      { label:'Triwulan I (Jan\u2013Mar)', get:(r)=>r.tw1 },
+      { label:'Triwulan II (Apr\u2013Jun)', get:(r)=>r.tw2 },
+    ];
+    let hint = `Data ${months[0]}\u2013${months[Math.min(5,n-1)]} 2026.`;
+    if(n > 6){
+      cols.push({ label:`Triwulan III* (${months.slice(6).join('\u2013')})`, get:(r)=>r.tw3 });
+      hint = `Triwulan III* baru berisi data ${months.slice(6).join(', ')} (belum genap 3 bulan).`;
+    }
+    return { columns: cols, hint };
+  }
+  if(mode === 'semester'){
+    const cols = [ { label:'Semester I (Jan\u2013Jun)', get:(r)=>r.sem1 } ];
+    let hint = `Data ${months[0]}\u2013${months[Math.min(5,n-1)]} 2026.`;
+    if(n > 6){
+      cols.push({ label:`Semester II* (${months.slice(6).join('\u2013')})`, get:(r)=>r.sem2 });
+      hint = `Semester II* baru berisi data ${months.slice(6).join(', ')} (belum genap 6 bulan).`;
+    }
+    return { columns: cols, hint };
+  }
+  // tahunan
+  return {
+    columns: [ { label:`Tahunan* (${months[0]}\u2013${months[n-1]}, YTD)`, get:(r)=>r.tahunan } ],
+    hint: `Rata-rata ${months[0]}\u2013${months[n-1]} (belum genap 12 bulan).`,
+  };
+}
+
+function renderCompareTable(){
+  const cfg = METRICS_CONFIG[compareMetricKey];
+  const fmt = cfg.fmt;
+  const { columns, hint } = getCompareColumnsForMode(comparePeriodMode);
+  document.getElementById('lfHint').textContent = hint;
+
+  let html = '<thead><tr><th>Trayek</th>' +
+    columns.map(c=>`<th>${c.label}</th>`).join('') +
+    '<th class="sep-left">Rata-rata</th></tr></thead><tbody>';
+
+  compareRowsCache.forEach(r=>{
+    const vals = columns.map(c=>c.get(r));
+    const rowAvg = avg(vals.filter(v=>typeof v==='number'));
+    html += `<tr><td>${routeLabel(r.code)}</td>` +
+      vals.map(v=>`<td>${fmt(v)}</td>`).join('') +
+      `<td class="sep-left"><strong>${fmt(rowAvg)}</strong></td></tr>`;
+  });
+
+  const colAvgs = columns.map(c=> avg(compareRowsCache.map(r=>c.get(r)).filter(v=>typeof v==='number')));
+  const overallAvg = avg(colAvgs.filter(v=>typeof v==='number'));
+  html += `<tr style="background:var(--paper-2);"><td><strong>Rata-rata Semua Trayek</strong></td>` +
+    colAvgs.map(v=>`<td><strong>${fmt(v)}</strong></td>`).join('') +
+    `<td class="sep-left"><strong>${fmt(overallAvg)}</strong></td></tr>`;
+
+  html += '</tbody>';
+  document.getElementById('loadFactorCompareTable').innerHTML = html;
+}
+
+// Export tabel yang sedang tampil (metrik + periode aktif) ke CSV,
+// urutan trayek tetap 1A..15, Listrik, dengan kolom & baris Rata-rata.
+function exportCompareCsv(){
+  const cfg = METRICS_CONFIG[compareMetricKey];
+  const { columns } = getCompareColumnsForMode(comparePeriodMode);
+  const numFmt = (v)=> v==null ? '' : cfg.num(v).toFixed(2);
+
+  const header = ['Trayek', ...columns.map(c=>`${c.label} (${cfg.unit})`), `Rata-rata (${cfg.unit})`];
+  const rows = [header];
+
+  compareRowsCache.forEach(r=>{
+    const vals = columns.map(c=>c.get(r));
+    const rowAvg = avg(vals.filter(v=>typeof v==='number'));
+    rows.push([routeLabel(r.code), ...vals.map(numFmt), numFmt(rowAvg)]);
+  });
+
+  const colAvgs = columns.map(c=> avg(compareRowsCache.map(r=>c.get(r)).filter(v=>typeof v==='number')));
+  const overallAvg = avg(colAvgs.filter(v=>typeof v==='number'));
+  rows.push(['Rata-rata Semua Trayek', ...colAvgs.map(numFmt), numFmt(overallAvg)]);
+
+  const csv = rows.map(r=>r.map(v=> typeof v==='string' && v.includes(',') ? `"${v}"` : v).join(',')).join('\n');
+  const tanggal = new Date().toISOString().slice(0,10);
+  downloadBlob(`${compareMetricKey}-${comparePeriodMode}-${tanggal}.csv`, csv, 'text/csv;charset=utf-8');
 }
 
 function baseLineOpts(yFmt){
@@ -836,13 +1043,12 @@ function apiConfigured(){
 async function loadUserEntries(){
   userEntries = [];
   if(!apiConfigured()){
-    console.warn('APPS_SCRIPT_URL belum diisi — lihat PANDUAN-SETUP.md');
     return;
   }
   try{
     const res = await fetch(APPS_SCRIPT_URL, { method:'GET' });
     const json = await res.json();
-    if(!json.ok){ console.error('API error:', json.error); return; }
+    if(!json.ok){ return; }
     userEntries = json.data.map(row => ({
       route: String(row.trayek),
       monthIndex: Number(row.bulanIndex),
@@ -856,7 +1062,7 @@ async function loadUserEntries(){
       loadfactor: row.loadFactor === '' ? null : Number(row.loadFactor),
     }));
   }catch(e){
-    console.error('Gagal memuat data input dari server:', e);
+    // gagal memuat data dari server — tabel input akan tampil kosong
   }
 }
 
@@ -945,7 +1151,6 @@ async function saveInputEntry(){
   }catch(e){
     msg.textContent = 'Gagal menyimpan: ' + e.message;
     msg.style.color = '#b5432e';
-    console.error(e);
     return;
   }
   userEntries = userEntries.filter(e=>!(e.route===route && e.monthIndex===monthIndex));
@@ -961,7 +1166,7 @@ async function deleteInputEntry(route, monthIndex){
   renderInputTable();
   if(apiConfigured()){
     try{ await callApi({ action:'delete', trayek: route, bulanIndex: monthIndex }); }
-    catch(e){ console.error('Gagal menghapus di server:', e); }
+    catch(e){ /* gagal hapus di server — data lokal tetap terhapus dari tampilan */ }
   }
   const currentRoute = document.getElementById('routeSelect').value;
   renderRoute(currentRoute);
