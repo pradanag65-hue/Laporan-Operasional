@@ -522,8 +522,9 @@ button.icon-btn:hover{background:var(--pink-soft);}
           <label class="field">Kecepatan (km/jam)<input type="number" step="0.1" id="inKecepatan" placeholder="mis. 23.1"></label>
           <label class="field">RTT (menit)<input type="number" step="0.1" id="inRtt" placeholder="mis. 124"></label>
           <label class="field">Km Tempuh<input type="number" step="0.01" id="inKm" placeholder="mis. 83200.5"></label>
-          <label class="field">Load Factor (0&ndash;1)<input type="number" step="0.001" id="inLf" placeholder="mis. 0.52"></label>
+          <label class="field">Load Factor<input type="number" step="0.01" id="inLf" placeholder="mis. 0.52 atau 52 (=52%)"></label>
         </div>
+        <div class="hint" style="margin-top:-8px;margin-bottom:14px;">Load Factor boleh diisi desimal (<span class="mono">0.52</span>) atau angka persen langsung (<span class="mono">52</span> / <span class="mono">52,3</span>) &mdash; otomatis terdeteksi.</div>
         <div class="form-actions">
           <button class="primary" id="btnSaveInput">Simpan Data</button>
           <button class="ghost" id="btnClearForm">Bersihkan Form</button>
@@ -586,6 +587,15 @@ function fmtPct(n){ if(n===null||n===undefined||isNaN(n)) return '-'; return (n*
 function avg(arr){ const v=arr.filter(x=>typeof x==='number'); return v.length? v.reduce((a,b)=>a+b,0)/v.length : null; }
 function sum(arr){ return arr.filter(x=>typeof x==='number').reduce((a,b)=>a+b,0); }
 
+// Load Factor disimpan secara internal sebagai pecahan 0-1 (0.4523 = 45.23%).
+// Tapi orang sering mengetik angka persen langsung (45.23 atau "45,23").
+// Kalau nilainya lebih besar dari 1.5, anggap itu sudah dalam bentuk persen
+// dan bagi 100 dulu sebelum disimpan — supaya "45,23" tidak jadi "4523%".
+function normalizeLoadFactor(v){
+  if(v === null || v === undefined || isNaN(v)) return null;
+  return Math.abs(v) > 1.5 ? v / 100 : v;
+}
+
 /* ---------------- tabs ---------------- */
 document.getElementById('tabNav').addEventListener('click', (e)=>{
   const btn = e.target.closest('button[data-tab]');
@@ -620,7 +630,7 @@ async function loadEntries(){
       kecepatan: row.kecepatan === '' ? null : Number(row.kecepatan),
       rtt: row.rtt === '' ? null : Number(row.rtt),
       km: row.kmTempuh === '' ? null : Number(row.kmTempuh),
-      loadfactor: row.loadFactor === '' ? null : Number(row.loadFactor),
+      loadfactor: row.loadFactor === '' ? null : normalizeLoadFactor(Number(row.loadFactor)),
     }));
   }catch(e){ /* biarkan entries kosong, tampilkan empty state */ }
 }
@@ -1141,7 +1151,7 @@ function rowsToEntries(rows){
       kecepatan: numOrNullAt(cols, idx.kecepatan),
       rtt: numOrNullAt(cols, idx.rtt),
       km: numOrNullAt(cols, idx.km),
-      loadfactor: numOrNullAt(cols, idx.loadfactor),
+      loadfactor: normalizeLoadFactor(numOrNullAt(cols, idx.loadfactor)),
     });
   }
   if(parsed.length === 0){ throw new Error('Tidak ada baris valid yang bisa dibaca. Cek format Bulan & Trayek.'); }
@@ -1257,7 +1267,7 @@ async function saveInputEntry(){
   const entry = {
     route, monthIndex, monthLabel: MONTHS12[monthIndex],
     penumpang: numOrNull('inPenumpang'), ritase: numOrNull('inRitase'), headway: numOrNull('inHeadway'),
-    kecepatan: numOrNull('inKecepatan'), rtt: numOrNull('inRtt'), km: numOrNull('inKm'), loadfactor: numOrNull('inLf'),
+    kecepatan: numOrNull('inKecepatan'), rtt: numOrNull('inRtt'), km: numOrNull('inKm'), loadfactor: normalizeLoadFactor(numOrNull('inLf')),
   };
   const hasAny = ['penumpang','ritase','headway','kecepatan','rtt','km','loadfactor'].some(f=>entry[f]!==null);
   const msg = document.getElementById('formMsg');
