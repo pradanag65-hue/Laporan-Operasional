@@ -1308,11 +1308,13 @@ function renderInputTable(){
   const empty = document.getElementById('inputEmpty');
   if(entries.length === 0){ table.innerHTML=''; empty.style.display='block'; return; }
   empty.style.display = 'none';
-  const sorted = [...entries].sort((a,b)=> a.route.localeCompare(b.route) || a.monthIndex - b.monthIndex);
-  let html = '<thead><tr><th>Trayek</th><th>Bulan</th><th>Penumpang</th><th>Ritase</th><th>Headway</th><th>Kecepatan</th><th>RTT</th><th>Km Tempuh</th><th>Load Factor</th><th></th></tr></thead><tbody>';
+  const sorted = [...entries].sort((a,b)=>
+    a.monthIndex - b.monthIndex || ROUTE_ORDER.indexOf(a.route) - ROUTE_ORDER.indexOf(b.route)
+  );
+  let html = '<thead><tr><th>Bulan</th><th>Trayek</th><th>Penumpang</th><th>Ritase</th><th>Headway</th><th>Kecepatan</th><th>RTT</th><th>Km Tempuh</th><th>Load Factor</th><th></th></tr></thead><tbody>';
   sorted.forEach(e=>{
     html += `<tr>
-      <td>${routeLabel(e.route)}</td><td>${e.monthLabel}</td>
+      <td>${e.monthLabel}</td><td>${routeLabel(e.route)}</td>
       <td>${e.penumpang==null?'-':fmtInt(e.penumpang)}</td>
       <td>${e.ritase==null?'-':fmtInt(e.ritase)}</td>
       <td>${e.headway==null?'-':e.headway}</td>
@@ -1357,9 +1359,9 @@ function downloadXlsxRows(filename, rows2D, sheetName){
 }
 
 function buildBackupRows(){
-  const rows = [['Trayek','BulanIndex','Bulan','Penumpang','Ritase','Headway','Kecepatan','RTT','KmTempuh','LoadFactor']];
-  [...entries].sort((a,b)=> a.route.localeCompare(b.route) || a.monthIndex-b.monthIndex).forEach(e=>{
-    rows.push([routeLabel(e.route), e.monthIndex, e.monthLabel, e.penumpang??'', e.ritase??'', e.headway??'', e.kecepatan??'', e.rtt??'', e.km??'', e.loadfactor??'']);
+  const rows = [['Bulan','BulanIndex','Trayek','Penumpang','Ritase','Headway','Kecepatan','RTT','KmTempuh','LoadFactor']];
+  [...entries].sort((a,b)=> a.monthIndex - b.monthIndex || ROUTE_ORDER.indexOf(a.route) - ROUTE_ORDER.indexOf(b.route)).forEach(e=>{
+    rows.push([e.monthLabel, e.monthIndex, routeLabel(e.route), e.penumpang??'', e.ritase??'', e.headway??'', e.kecepatan??'', e.rtt??'', e.km??'', e.loadfactor??'']);
   });
   return rows;
 }
