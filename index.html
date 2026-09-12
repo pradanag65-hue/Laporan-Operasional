@@ -194,8 +194,9 @@ nav.tabs button.active{
   display:inline-flex;align-items:center;justify-content:center;
   min-width:32px;height:24px;padding:0 7px;border-radius:9px;
   font-family:'IBM Plex Mono',monospace;font-size:12px;font-weight:700;
-  background:linear-gradient(135deg, var(--teal), #1a9c87);
+  background:var(--teal);
   color:#fff;
+  transition:background .15s ease;
 }
 
 /* ---- status pills ---- */
@@ -203,6 +204,12 @@ nav.tabs button.active{
 .pill.good{background:var(--teal-soft);color:#158a76;}
 .pill.warn{background:var(--orange-soft);color:#a6740f;}
 .pill.bad{background:var(--pink-soft);color:#c94861;}
+
+/* ---- dot warna trayek ---- */
+.route-dot{
+  display:inline-block;width:8px;height:8px;border-radius:50%;
+  margin-right:7px;flex-shrink:0;
+}
 
 /* ---- empty state ---- */
 .empty-box{
@@ -575,8 +582,16 @@ const COL_ORANGE = '#f0ab29';
 const COL_PINK = '#ef6f8e';
 const COL_PURPLE = '#8b6fd8';
 const COL_BLUE = '#4ea1d3';
+const COL_LIME = '#7bc67e';
+const COL_GOLD = '#e0b23e';
+const COL_CORAL = '#e8735c';
 const COL_LINE = '#dfe4ec';
 const COL_INK_SOFT = '#7c8698';
+
+// Palet warna bergilir per trayek, supaya grafik & tabel lebih hidup
+// (tidak monoton satu warna untuk semua batang/baris).
+const PALETTE = [COL_PINK, COL_ORANGE, COL_TEAL, COL_PURPLE, COL_BLUE, COL_LIME, COL_GOLD, COL_CORAL];
+function routeColor(code){ return PALETTE[ROUTE_ORDER.indexOf(code) % PALETTE.length]; }
 
 Chart.defaults.font.family = "'Plus Jakarta Sans', sans-serif";
 Chart.defaults.font.size = 12;
@@ -770,7 +785,7 @@ function buildRingkasanCharts(months){
   });
   ringkasanCharts.rit = new Chart(document.getElementById('chartArmada'), {
     type:'bar',
-    data:{ labels: ROUTE_ORDER.map(routeLabel), datasets:[{ data: ritByRoute, backgroundColor: COL_TEAL, borderRadius:8, maxBarThickness:22 }] },
+    data:{ labels: ROUTE_ORDER.map(routeLabel), datasets:[{ data: ritByRoute, backgroundColor: ROUTE_ORDER.map(routeColor), borderRadius:8, maxBarThickness:22 }] },
     options: baseBarOpts(fmtInt)
   });
 
@@ -780,7 +795,7 @@ function buildRingkasanCharts(months){
   });
   ringkasanCharts.lfRoute = new Chart(document.getElementById('chartLoadFactor'), {
     type:'bar',
-    data:{ labels: ROUTE_ORDER.map(routeLabel), datasets:[{ data: lfByRoute, backgroundColor: COL_ORANGE, borderRadius:8, maxBarThickness:22 }] },
+    data:{ labels: ROUTE_ORDER.map(routeLabel), datasets:[{ data: lfByRoute, backgroundColor: ROUTE_ORDER.map(routeColor), borderRadius:8, maxBarThickness:22 }] },
     options: baseBarOpts(fmtPct)
   });
 }
@@ -915,7 +930,7 @@ function renderCompareTable(){
   compareRowsCache.forEach(r=>{
     const vals = columns.map(c=>c.get(r));
     const rowAvg = avg(vals.filter(v=>typeof v==='number'));
-    html += `<tr><td>${routeLabel(r.code)}</td>` + vals.map(v=>`<td>${cfg.fmt(v)}</td>`).join('') + `<td class="sep-left"><strong>${cfg.fmt(rowAvg)}</strong></td></tr>`;
+    html += `<tr><td><span class="route-dot" style="background:${routeColor(r.code)}"></span>${routeLabel(r.code)}</td>` + vals.map(v=>`<td>${cfg.fmt(v)}</td>`).join('') + `<td class="sep-left"><strong>${cfg.fmt(rowAvg)}</strong></td></tr>`;
   });
   const colAvgs = columns.map(c=> avg(compareRowsCache.map(r=>c.get(r)).filter(v=>typeof v==='number')));
   const overallAvg = avg(colAvgs.filter(v=>typeof v==='number'));
@@ -979,6 +994,7 @@ function routeSeries12(code, field){
 
 function renderRoute(code){
   document.getElementById('routeBadge').textContent = routeLabel(code);
+  document.getElementById('routeBadge').style.background = routeColor(code);
   const hasData = entries.some(e=>e.route===code);
   const empty = document.getElementById('trayekEmpty');
   const content = document.getElementById('trayekContent');
@@ -1002,7 +1018,7 @@ function renderRoute(code){
   routeCharts.lf  = new Chart(document.getElementById('chartRouteLF'), lineCfg(labels, lf, COL_PINK, fmtPct));
   routeCharts.hw  = new Chart(document.getElementById('chartRouteHeadway'), lineCfg(labels, hw, COL_PURPLE, (v)=>v==null?'-':v.toFixed(1)+' mnt'));
   routeCharts.kec = new Chart(document.getElementById('chartRouteKecepatan'), lineCfg(labels, kec, COL_BLUE, (v)=>v==null?'-':v.toFixed(1)+' km/j'));
-  routeCharts.km  = new Chart(document.getElementById('chartRouteKm'), lineCfg(labels, km, COL_TEAL, (v)=>v==null?'-':fmtInt(v)+' km'));
+  routeCharts.km  = new Chart(document.getElementById('chartRouteKm'), lineCfg(labels, km, COL_CORAL, (v)=>v==null?'-':fmtInt(v)+' km'));
 
   renderRouteTable(labels, {pnp, rit, lf, hw, kec, km});
 }
@@ -1182,7 +1198,7 @@ function renderCsvPreview(rows){
   let html = '<thead><tr><th>Bulan</th><th>Trayek</th><th>Penumpang</th><th>Ritase</th><th>Headway</th><th>Kecepatan</th><th>RTT</th><th>Km Tempuh</th><th>Load Factor</th></tr></thead><tbody>';
   rows.forEach(r=>{
     html += `<tr>
-      <td>${r.monthLabel}</td><td>${routeLabel(r.route)}</td>
+      <td>${r.monthLabel}</td><td><span class="route-dot" style="background:${routeColor(r.route)}"></span>${routeLabel(r.route)}</td>
       <td>${r.penumpang==null?'-':fmtInt(r.penumpang)}</td>
       <td>${r.ritase==null?'-':fmtInt(r.ritase)}</td>
       <td>${r.headway==null?'-':r.headway}</td>
@@ -1314,7 +1330,7 @@ function renderInputTable(){
   let html = '<thead><tr><th>Bulan</th><th>Trayek</th><th>Penumpang</th><th>Ritase</th><th>Headway</th><th>Kecepatan</th><th>RTT</th><th>Km Tempuh</th><th>Load Factor</th><th></th></tr></thead><tbody>';
   sorted.forEach(e=>{
     html += `<tr>
-      <td>${e.monthLabel}</td><td>${routeLabel(e.route)}</td>
+      <td>${e.monthLabel}</td><td><span class="route-dot" style="background:${routeColor(e.route)}"></span>${routeLabel(e.route)}</td>
       <td>${e.penumpang==null?'-':fmtInt(e.penumpang)}</td>
       <td>${e.ritase==null?'-':fmtInt(e.ritase)}</td>
       <td>${e.headway==null?'-':e.headway}</td>
