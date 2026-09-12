@@ -44,27 +44,33 @@ if(xr(e,"index.xml"))throw new Error("Unsupported NUMBERS 09 file");throw new Er
 </script>
 <style>
 :root{
-  --bg:#ecf0f5;
-  --ink:#1c2541;
-  --ink-soft:#7c8698;
-  --ink-faint:#a3acbb;
-  --line:#dfe4ec;
+  --bg:#e4f4ec;
+  --card:#ffffff;
+  --ink:#0f2e24;
+  --ink-soft:#5c7a6e;
+  --ink-faint:#93ab9f;
+  --line:#dcede4;
+
+  --brand-700:#0a5c46;
+  --brand-600:#0f6b52;
+  --brand-500:#149a75;
+  --brand-soft:#dcf3e8;
 
   --pink:#ef6f8e;   --pink-soft:#fce3e9;
   --orange:#f0ab29; --orange-soft:#fdf0d1;
-  --teal:#22b8a0;   --teal-soft:#dbf5ef;
+  --teal:#149a75;   --teal-soft:#dcf3e8;
   --purple:#8b6fd8; --purple-soft:#ece4fb;
   --blue:#4ea1d3;   --blue-soft:#dcedf7;
 
-  --shadow-out: 8px 8px 18px rgba(163,177,198,0.45), -8px -8px 18px rgba(255,255,255,0.75);
-  --shadow-out-sm: 5px 5px 10px rgba(163,177,198,0.4), -5px -5px 10px rgba(255,255,255,0.7);
-  --shadow-in: inset 4px 4px 8px rgba(163,177,198,0.4), inset -4px -4px 8px rgba(255,255,255,0.7);
+  --shadow-out: 0 14px 28px rgba(10,60,45,0.10), 0 2px 6px rgba(10,60,45,0.06);
+  --shadow-out-sm: 0 6px 14px rgba(10,60,45,0.10);
+  --shadow-in: inset 0 2px 5px rgba(10,60,45,0.10);
   --radius: 20px;
 }
 *{box-sizing:border-box;}
 html,body{margin:0;padding:0;}
 body{
-  background:var(--bg);
+  background: radial-gradient(circle at 85% 8%, #cdece0 0%, var(--bg) 45%);
   color:var(--ink);
   font-family:'Plus Jakarta Sans', sans-serif;
   font-size:15px;
@@ -85,7 +91,7 @@ h1,h2,h3{font-family:'Plus Jakarta Sans',sans-serif;}
   margin:0 auto;
 }
 .sidebar{
-  background:var(--bg);
+  background:var(--card);
   border-radius:24px;
   box-shadow:var(--shadow-out);
   padding:24px 16px;
@@ -98,7 +104,7 @@ h1,h2,h3{font-family:'Plus Jakarta Sans',sans-serif;}
 .brand{display:flex;align-items:center;gap:10px;padding:0 6px 18px;border-bottom:1px solid var(--line);}
 .brand .mark{
   width:42px;height:42px;border-radius:14px;
-  background:linear-gradient(135deg, var(--teal), #1a9c87);
+  background:linear-gradient(135deg, var(--brand-500), var(--brand-700));
   display:flex;align-items:center;justify-content:center;
   color:#fff;font-weight:800;font-size:15px;
   box-shadow:var(--shadow-out-sm);
@@ -116,17 +122,17 @@ nav.tabs button{
   transition:all .15s ease;
 }
 nav.tabs button svg{opacity:.8;flex-shrink:0;}
-nav.tabs button:hover{background:rgba(255,255,255,0.6);}
+nav.tabs button:hover{background:var(--brand-soft);color:var(--brand-700);}
 nav.tabs button.active{
-  background:var(--bg);
-  color:var(--teal);
-  box-shadow:var(--shadow-in);
+  background:var(--brand-soft);
+  color:var(--brand-700);
+  font-weight:700;
 }
 .sidebar-foot{
   margin-top:auto;
   border-radius:16px;
   padding:16px 14px;
-  background:linear-gradient(160deg, var(--teal-soft), var(--blue-soft));
+  background:linear-gradient(160deg, var(--brand-soft), var(--blue-soft));
   box-shadow:var(--shadow-out-sm);
 }
 .sidebar-foot .foot-title{font-size:12.5px;font-weight:700;color:var(--ink);margin:0 0 4px;}
@@ -138,8 +144,8 @@ nav.tabs button.active{
 .page-head .sub{color:var(--ink-soft);font-size:13.5px;}
 .period-pill{
   font-family:'IBM Plex Mono',monospace;font-size:12px;font-weight:600;
-  background:var(--bg);box-shadow:var(--shadow-out-sm);
-  padding:8px 14px;border-radius:20px;color:var(--teal);
+  background:var(--brand-soft);
+  padding:8px 14px;border-radius:20px;color:var(--brand-700);
 }
 
 .tab-panel{display:none;}
@@ -148,7 +154,7 @@ nav.tabs button.active{
 /* ---- kpi row : donut-style mini widgets ---- */
 .kpi-row{display:grid;grid-template-columns:repeat(4,1fr);gap:16px;margin-bottom:20px;}
 .kpi{
-  background:var(--bg);border-radius:20px;box-shadow:var(--shadow-out);
+  background:var(--card);border-radius:20px;box-shadow:var(--shadow-out);
   padding:16px; display:flex; align-items:center; gap:14px;
 }
 .kpi .ring-wrap{position:relative;width:64px;height:64px;flex-shrink:0;}
@@ -169,7 +175,7 @@ nav.tabs button.active{
 .grid2{display:grid;grid-template-columns:1.3fr 1fr;gap:16px;margin-bottom:16px;}
 .grid3{display:grid;grid-template-columns:repeat(3,1fr);gap:16px;margin-bottom:16px;}
 .card{
-  background:var(--bg);border-radius:20px;box-shadow:var(--shadow-out);
+  background:var(--card);border-radius:20px;box-shadow:var(--shadow-out);
   padding:20px 22px 16px;
 }
 .card h3{margin:0 0 2px;font-size:14.5px;font-weight:700;color:var(--ink);}
@@ -225,7 +231,7 @@ nav.tabs button.active{
 select, input[type=number], input[type=text], input[type=file]{
   font-family:'Plus Jakarta Sans',sans-serif;font-size:13.5px;
   padding:9px 12px;border-radius:12px;border:none;
-  background:var(--bg);box-shadow:var(--shadow-in);color:var(--ink);
+  background:var(--card);box-shadow:var(--shadow-in);color:var(--ink);
 }
 select{min-width:160px;}
 label.field{display:flex;flex-direction:column;gap:5px;font-size:12px;color:var(--ink-soft);font-weight:600;}
@@ -238,27 +244,27 @@ tbody td.sep-left{border-left:2px solid var(--line);}
 tbody td{padding:9px 10px;border-bottom:1px solid var(--line);white-space:nowrap;font-family:'IBM Plex Mono',monospace;font-size:12.5px;}
 tbody td:first-child, thead th:first-child{font-family:'Plus Jakarta Sans',sans-serif;font-weight:600;}
 tbody tr:hover{background:rgba(255,255,255,0.5);}
-.table-wrap{background:var(--bg);border-radius:20px;box-shadow:var(--shadow-out);overflow:hidden;}
+.table-wrap{background:var(--card);border-radius:20px;box-shadow:var(--shadow-out);overflow:hidden;}
 .table-wrap table{margin:0;}
 .table-scroll{overflow-x:auto;}
 .table-head-row{padding:18px 20px 4px;}
 
 /* ---- period toggle ---- */
-.period-toggle{display:flex;gap:4px;background:var(--bg);box-shadow:var(--shadow-in);padding:4px;border-radius:12px;}
+.period-toggle{display:flex;gap:4px;background:var(--card);box-shadow:var(--shadow-in);padding:4px;border-radius:12px;}
 .period-toggle button{all:unset;cursor:pointer;padding:7px 13px;border-radius:9px;font-size:12px;font-weight:600;color:var(--ink-soft);}
-.period-toggle button.active{background:var(--bg);color:var(--teal);box-shadow:var(--shadow-out-sm);}
+.period-toggle button.active{background:var(--card);color:var(--teal);box-shadow:var(--shadow-out-sm);}
 .period-toggle button:hover:not(.active){color:var(--ink);}
 
 /* ---- import panel ---- */
 .import-card{
-  background:var(--bg);border-radius:20px;box-shadow:var(--shadow-out);
+  background:var(--card);border-radius:20px;box-shadow:var(--shadow-out);
   padding:24px 26px;margin-bottom:20px;
 }
 .import-card h3{margin:0 0 4px;font-size:15.5px;font-weight:800;}
 .import-card .hint{font-size:13px;color:var(--ink-soft);margin-bottom:18px;}
 .import-steps{display:grid;grid-template-columns:repeat(3,1fr);gap:14px;margin-bottom:18px;}
 .import-step{
-  background:var(--bg);box-shadow:var(--shadow-in);border-radius:14px;padding:14px 16px;
+  background:var(--card);box-shadow:var(--shadow-in);border-radius:14px;padding:14px 16px;
 }
 .import-step .num{
   width:24px;height:24px;border-radius:8px;background:var(--teal);color:#fff;
@@ -268,7 +274,7 @@ tbody tr:hover{background:rgba(255,255,255,0.5);}
 .import-step .d{font-size:11.5px;color:var(--ink-soft);line-height:1.4;}
 .file-drop{
   display:flex;align-items:center;gap:14px;flex-wrap:wrap;
-  padding:16px;border-radius:14px;background:var(--bg);box-shadow:var(--shadow-in);
+  padding:16px;border-radius:14px;background:var(--card);box-shadow:var(--shadow-in);
 }
 .import-preview-wrap{margin-top:16px;}
 .import-msg{font-size:13px;margin-top:10px;font-weight:600;}
@@ -276,7 +282,7 @@ tbody tr:hover{background:rgba(255,255,255,0.5);}
 .import-msg.err{color:#c94861;}
 
 /* ---- form ---- */
-.form-card{background:var(--bg);border-radius:20px;box-shadow:var(--shadow-out);padding:22px 24px;margin-bottom:20px;}
+.form-card{background:var(--card);border-radius:20px;box-shadow:var(--shadow-out);padding:22px 24px;margin-bottom:20px;}
 .form-card h3{margin:0 0 4px;font-size:14.5px;font-weight:800;}
 .form-card .hint{font-size:12.5px;color:var(--ink-soft);margin-bottom:16px;}
 .form-grid{display:grid;grid-template-columns:repeat(4,1fr);gap:14px;margin-bottom:16px;}
@@ -284,14 +290,14 @@ tbody tr:hover{background:rgba(255,255,255,0.5);}
 
 button.primary{
   all:unset;cursor:pointer;
-  background:linear-gradient(135deg, var(--teal), #1a9c87);
+  background:linear-gradient(135deg, var(--brand-500), var(--brand-700));
   color:#fff;padding:11px 20px;border-radius:14px;font-size:13.5px;font-weight:700;
-  box-shadow:0 8px 16px rgba(34,184,160,0.3);
+  box-shadow:0 8px 16px rgba(15,107,82,0.3);
 }
 button.primary:hover{filter:brightness(1.05);}
 button.ghost{
   all:unset;cursor:pointer;color:var(--ink-soft);padding:11px 16px;border-radius:14px;
-  font-size:13px;font-weight:600;background:var(--bg);box-shadow:var(--shadow-out-sm);
+  font-size:13px;font-weight:600;background:var(--card);box-shadow:var(--shadow-out-sm);
 }
 button.ghost:hover{color:var(--ink);}
 .form-msg{font-size:12.5px;color:var(--teal);margin-left:4px;font-weight:600;}
@@ -308,6 +314,44 @@ button.icon-btn:hover{background:var(--pink-soft);}
 }
 @media (max-width:560px){
   .kpi-row,.grid2,.grid3,.form-grid,.import-steps{grid-template-columns:1fr;}
+}
+
+/* ---- widget mengambang pojok kanan bawah ---- */
+.floaty{
+  position:fixed; right:26px; bottom:26px; z-index:60;
+  width:56px; height:56px;
+  display:flex; align-items:center; justify-content:center;
+  cursor:pointer;
+}
+.floaty-ring{
+  position:absolute; inset:0; border-radius:50%;
+  background:var(--brand-500);
+  opacity:0.4;
+  animation: floaty-pulse 2.8s ease-out infinite;
+}
+.floaty-ring-2{ animation-delay:1.4s; }
+.floaty-bubble{
+  position:relative; width:52px; height:52px; border-radius:50%;
+  background:linear-gradient(135deg, var(--brand-500), var(--brand-700));
+  display:flex; align-items:center; justify-content:center;
+  font-size:22px; color:#fff;
+  box-shadow:0 10px 24px rgba(15,107,82,0.4);
+  animation: floaty-bob 3s ease-in-out infinite;
+  transition: transform .2s ease;
+}
+.floaty:hover .floaty-bubble{ animation-play-state:paused; transform:translateY(-4px) scale(1.08); }
+@keyframes floaty-pulse{
+  0%{ transform:scale(0.9); opacity:0.45; }
+  70%{ transform:scale(1.7); opacity:0; }
+  100%{ transform:scale(1.7); opacity:0; }
+}
+@keyframes floaty-bob{
+  0%,100%{ transform:translateY(0) rotate(0deg); }
+  50%{ transform:translateY(-7px) rotate(-6deg); }
+}
+@media (max-width:560px){
+  .floaty{ right:16px; bottom:16px; width:48px; height:48px; }
+  .floaty-bubble{ width:44px; height:44px; font-size:19px; }
 }
 </style>
 </head>
@@ -555,6 +599,12 @@ button.icon-btn:hover{background:var(--pink-soft);}
   </main>
 </div>
 
+<div class="floaty" id="floatyWidget" title="Kembali ke atas">
+  <div class="floaty-ring"></div>
+  <div class="floaty-ring floaty-ring-2"></div>
+  <div class="floaty-bubble">&#128652;</div>
+</div>
+
 <script>window.__NO_BASE_DATA__ = true;</script>
 <script>
 /* =========================================================
@@ -564,7 +614,7 @@ button.icon-btn:hover{background:var(--pink-soft);}
    ========================================================= */
 
 // GANTI dengan URL Web App Apps Script kamu setelah deploy.
-const APPS_SCRIPT_URL = 'https://script.google.com/macros/s/AKfycbwxUJnQUzdI2PLtM9si4n2p3tAjYdNedUyQLwSXmsnwoP1ps2BuFklKe9PBEyEc8imuGA/exec';
+const APPS_SCRIPT_URL = 'PASTE_URL_APPS_SCRIPT_DI_SINI';
 
 const ROUTE_ORDER = ['1A','1B','2A','2B','3A','3B','4A','4B','5A','5B','6','8','9','10','11','12','13','14','15','EV'];
 function routeLabel(code){ return code === 'EV' ? 'Listrik' : code; }
@@ -577,7 +627,7 @@ function routeCodeFromLabel(label){
 const MONTHS12 = ['Januari','Februari','Maret','April','Mei','Juni','Juli','Agustus','September','Oktober','November','Desember'];
 const MONTHS12_SHORT = ['Jan','Feb','Mar','Apr','Mei','Jun','Jul','Agu','Sep','Okt','Nov','Des'];
 
-const COL_TEAL = '#22b8a0';
+const COL_TEAL = '#149a75';
 const COL_ORANGE = '#f0ab29';
 const COL_PINK = '#ef6f8e';
 const COL_PURPLE = '#8b6fd8';
@@ -1391,10 +1441,19 @@ function exportBackupXlsx(){
 /* =========================================================
    INIT
    ========================================================= */
+function buildFloatyWidget(){
+  const el = document.getElementById('floatyWidget');
+  if(!el) return;
+  el.addEventListener('click', ()=>{
+    window.scrollTo({ top:0, behavior:'smooth' });
+  });
+}
+
 (async function init(){
   buildRouteSelect();
   buildImportPanel();
   buildInputForm();
+  buildFloatyWidget();
   await loadEntries();
   buildRingkasan();
   renderInputTable();
