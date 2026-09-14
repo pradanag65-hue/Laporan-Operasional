@@ -492,7 +492,8 @@ button.icon-btn:hover{background:var(--pink-soft);}
           <div class="card"><h3>Jumlah Penumpang</h3><div class="hint">per bulan</div><canvas id="chartRoutePenumpang"></canvas></div>
           <div class="card"><h3>Ritase</h3><div class="hint">jumlah perjalanan per bulan</div><canvas id="chartRouteRitase"></canvas></div>
           <div class="card"><h3>Load Factor</h3><div class="hint">tingkat keterisian</div><canvas id="chartRouteLF"></canvas></div>
-          <div class="card"><h3>Headway</h3><div class="hint">menit antar kedatangan</div><canvas id="chartRouteHeadway"></canvas></div>
+          <div class="card"><h3>Headway</h3><div class="hint">jam:menit antar kedatangan</div><canvas id="chartRouteHeadway"></canvas></div>
+          <div class="card"><h3>RTT (Round Trip Time)</h3><div class="hint">jam:menit per putaran</div><canvas id="chartRouteRtt"></canvas></div>
           <div class="card"><h3>Kecepatan Rata-rata</h3><div class="hint">km/jam</div><canvas id="chartRouteKecepatan"></canvas></div>
           <div class="card"><h3>Km Tempuh</h3><div class="hint">produksi km per bulan</div><canvas id="chartRouteKm"></canvas></div>
         </div>
@@ -655,6 +656,15 @@ Chart.defaults.color = COL_INK_SOFT;
 
 function fmtInt(n){ if(n===null||n===undefined||isNaN(n)) return '-'; return Math.round(n).toLocaleString('id-ID'); }
 function fmtPct(n){ if(n===null||n===undefined||isNaN(n)) return '-'; return (n*100).toFixed(1)+'%'; }
+// Headway & RTT disimpan secara internal dalam total menit, tapi ditampilkan
+// dalam format jam:menit (mis. 129 menit -> "2j 9m") biar gampang dibaca.
+function fmtJamMenit(v){
+  if(v===null||v===undefined||isNaN(v)) return '-';
+  const total = Math.round(v);
+  const h = Math.floor(total/60);
+  const m = total%60;
+  return h===0 ? `${m}m` : `${h}j ${m}m`;
+}
 function avg(arr){ const v=arr.filter(x=>typeof x==='number'); return v.length? v.reduce((a,b)=>a+b,0)/v.length : null; }
 function sum(arr){ return arr.filter(x=>typeof x==='number').reduce((a,b)=>a+b,0); }
 
@@ -951,9 +961,9 @@ function baseBarOpts(yFmt){
    ========================================================= */
 const METRICS_CONFIG = {
   loadfactor: { label:'Load Factor', unit:'%', fmt:(v)=>v==null?'-':fmtPct(v), num:(v)=>v==null?null:v*100 },
-  headway:    { label:'Headway', unit:'menit', fmt:(v)=>v==null?'-':v.toFixed(1), num:(v)=>v },
+  headway:    { label:'Headway', unit:'menit', fmt:(v)=>fmtJamMenit(v), num:(v)=>v },
   kecepatan:  { label:'Kecepatan Rata-rata', unit:'km/jam', fmt:(v)=>v==null?'-':v.toFixed(1), num:(v)=>v },
-  rtt:        { label:'RTT', unit:'menit', fmt:(v)=>v==null?'-':v.toFixed(1), num:(v)=>v },
+  rtt:        { label:'RTT', unit:'menit', fmt:(v)=>fmtJamMenit(v), num:(v)=>v },
   km:         { label:'Km Tempuh', unit:'km', fmt:(v)=>v==null?'-':fmtInt(v), num:(v)=>v },
   ritase:     { label:'Ritase', unit:'rit', fmt:(v)=>v==null?'-':fmtInt(v), num:(v)=>v },
   penumpang:  { label:'Jumlah Penumpang', unit:'orang', fmt:(v)=>v==null?'-':fmtInt(v), num:(v)=>v },
@@ -1135,16 +1145,17 @@ function renderRoute(code){
   const labels = present.map(m=>MONTHS12_SHORT[m]);
   const pick = (field)=> present.map(m=>{ const e = entries.find(x=>x.route===code && x.monthIndex===m); return e && typeof e[field]==='number' ? e[field] : null; });
 
-  const pnp = pick('penumpang'), rit = pick('ritase'), lf = pick('loadfactor'), hw = pick('headway'), kec = pick('kecepatan'), km = pick('km');
+  const pnp = pick('penumpang'), rit = pick('ritase'), lf = pick('loadfactor'), hw = pick('headway'), rtt = pick('rtt'), kec = pick('kecepatan'), km = pick('km');
 
   routeCharts.pnp = new Chart(document.getElementById('chartRoutePenumpang'), lineCfg(labels, pnp, COL_TEAL, fmtInt));
   routeCharts.rit = new Chart(document.getElementById('chartRouteRitase'), lineCfg(labels, rit, COL_ORANGE, fmtInt));
   routeCharts.lf  = new Chart(document.getElementById('chartRouteLF'), lineCfg(labels, lf, COL_PINK, fmtPct));
-  routeCharts.hw  = new Chart(document.getElementById('chartRouteHeadway'), lineCfg(labels, hw, COL_PURPLE, (v)=>v==null?'-':v.toFixed(1)+' mnt'));
+  routeCharts.hw  = new Chart(document.getElementById('chartRouteHeadway'), lineCfg(labels, hw, COL_PURPLE, fmtJamMenit));
+  routeCharts.rtt = new Chart(document.getElementById('chartRouteRtt'), lineCfg(labels, rtt, COL_GOLD, fmtJamMenit));
   routeCharts.kec = new Chart(document.getElementById('chartRouteKecepatan'), lineCfg(labels, kec, COL_BLUE, (v)=>v==null?'-':v.toFixed(1)+' km/j'));
   routeCharts.km  = new Chart(document.getElementById('chartRouteKm'), lineCfg(labels, km, COL_CORAL, (v)=>v==null?'-':fmtInt(v)+' km'));
 
-  renderRouteTable(labels, {pnp, rit, lf, hw, kec, km});
+  renderRouteTable(labels, {pnp, rit, lf, hw, rtt, kec, km});
 }
 
 function renderRouteTable(labels, series){
@@ -1152,7 +1163,8 @@ function renderRouteTable(labels, series){
     ['Jumlah Penumpang', series.pnp, fmtInt],
     ['Ritase', series.rit, fmtInt],
     ['Load Factor', series.lf, fmtPct],
-    ['Headway (menit)', series.hw, (v)=>v==null?'-':v.toFixed(1)],
+    ['Headway', series.hw, fmtJamMenit],
+    ['RTT', series.rtt, fmtJamMenit],
     ['Kecepatan (km/jam)', series.kec, (v)=>v==null?'-':v.toFixed(1)],
     ['Km Tempuh', series.km, (v)=>v==null?'-':fmtInt(v)],
   ];
