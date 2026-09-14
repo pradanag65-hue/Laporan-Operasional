@@ -575,13 +575,13 @@ button.icon-btn:hover{background:var(--pink-soft);}
           <label class="field">Bulan<select id="inMonth"></select></label>
           <label class="field">Jumlah Penumpang<input type="number" id="inPenumpang" placeholder="mis. 84210"></label>
           <label class="field">Ritase<input type="number" id="inRitase" placeholder="mis. 1980"></label>
-          <label class="field">Headway (menit)<input type="number" step="0.1" id="inHeadway" placeholder="mis. 12"></label>
+          <label class="field">Headway<input type="number" step="0.01" id="inHeadway" placeholder="mis. 12 atau 0.21 (=21 mnt)"></label>
           <label class="field">Kecepatan (km/jam)<input type="number" step="0.1" id="inKecepatan" placeholder="mis. 23.1"></label>
-          <label class="field">RTT (menit)<input type="number" step="0.1" id="inRtt" placeholder="mis. 124"></label>
+          <label class="field">RTT<input type="number" step="0.01" id="inRtt" placeholder="mis. 124 atau 2.09 (=2j9mnt)"></label>
           <label class="field">Km Tempuh<input type="number" step="0.01" id="inKm" placeholder="mis. 83200.5"></label>
           <label class="field">Load Factor<input type="number" step="0.01" id="inLf" placeholder="mis. 0.52 atau 52 (=52%)"></label>
         </div>
-        <div class="hint" style="margin-top:-8px;margin-bottom:14px;">Load Factor boleh diisi desimal (<span class="mono">0.52</span>) atau angka persen langsung (<span class="mono">52</span> / <span class="mono">52,3</span>) &mdash; otomatis terdeteksi.</div>
+        <div class="hint" style="margin-top:-8px;margin-bottom:14px;">Load Factor boleh diisi desimal (<span class="mono">0.52</span>) atau angka persen langsung (<span class="mono">52</span> / <span class="mono">52,3</span>) &mdash; otomatis terdeteksi. Headway &amp; RTT boleh diisi menit langsung (<span class="mono">124</span>) atau notasi jam.menit (<span class="mono">2.09</span> = 2 jam 9 menit) &mdash; otomatis dikonversi ke menit.</div>
         <div class="form-actions">
           <button class="primary" id="btnSaveInput">Simpan Data</button>
           <button class="ghost" id="btnClearForm">Bersihkan Form</button>
@@ -667,6 +667,47 @@ function normalizeLoadFactor(v){
   return Math.abs(v) > 1.5 ? v / 100 : v;
 }
 
+// Headway & RTT kadang ditulis dengan notasi jam.menit ala Indonesia
+// (mis. "2.09" = 2 jam 9 menit, "0:21" = 21 menit) alih-alih angka menit polos.
+// Fungsi ini mengonversi format H:MM:SS atau H.MM(.SS) itu jadi total menit.
+// Kalau nilainya sudah berupa angka menit yang wajar (tanpa titik, atau di atas
+// ambang batas), dibiarkan apa adanya supaya data lama yang sudah benar tidak
+// ikut berubah.
+function hmsToMinutes(str, sep){
+  const parts = String(str).split(sep).map(p=>p.trim()).filter(p=>p!=='');
+  const h = parseInt(parts[0], 10) || 0;
+  let m = 0, s = 0;
+  if(parts[1] !== undefined){
+    let mStr = parts[1];
+    // Excel biasa membuang angka nol di belakang koma, jadi "0.2" sebenarnya "0.20".
+    // Kalau cuma 1 digit, tambahkan nol di belakang (bukan di depan).
+    if(mStr.length === 1) mStr += '0';
+    m = parseInt(mStr.slice(0,2), 10) || 0;
+  }
+  if(parts[2] !== undefined){
+    let sStr = parts[2];
+    if(sStr.length === 1) sStr += '0';
+    s = parseInt(sStr.slice(0,2), 10) || 0;
+  }
+  return h*60 + m + s/60;
+}
+
+function normalizeDurationMinutes(v, minPlausible){
+  if(v === null || v === undefined) return null;
+  const s = String(v).trim();
+  if(s === '') return null;
+  if(s.includes(':')) return hmsToMinutes(s, ':');
+  const n = parseFloat(s.replace(',', '.'));
+  if(isNaN(n)) return null;
+  // Hanya dianggap notasi "jam.menit" kalau ada titik desimal DAN nilainya jauh
+  // di bawah wajar untuk menit (mis. RTT 2.09 menit itu mustahil, pasti maksudnya
+  // 2 jam 9 menit). Angka polos tanpa titik (mis. "124") tidak pernah diubah.
+  if(s.includes('.') && Math.abs(n) < minPlausible) return hmsToMinutes(s, '.');
+  return n;
+}
+function normalizeHeadway(v){ return normalizeDurationMinutes(v, 5); }
+function normalizeRtt(v){ return normalizeDurationMinutes(v, 20); }
+
 /* ---------------- tabs ---------------- */
 document.getElementById('tabNav').addEventListener('click', (e)=>{
   const btn = e.target.closest('button[data-tab]');
@@ -697,9 +738,9 @@ async function loadEntries(){
       monthLabel: row.bulanLabel,
       penumpang: row.penumpang === '' ? null : Number(row.penumpang),
       ritase: row.ritase === '' ? null : Number(row.ritase),
-      headway: row.headway === '' ? null : Number(row.headway),
+      headway: row.headway === '' ? null : normalizeHeadway(row.headway),
       kecepatan: row.kecepatan === '' ? null : Number(row.kecepatan),
-      rtt: row.rtt === '' ? null : Number(row.rtt),
+      rtt: row.rtt === '' ? null : normalizeRtt(row.rtt),
       km: row.kmTempuh === '' ? null : Number(row.kmTempuh),
       loadfactor: row.loadFactor === '' ? null : normalizeLoadFactor(Number(row.loadFactor)),
     }));
@@ -1220,6 +1261,11 @@ function rowsToEntries(rows){
     const n = parseFloat(raw.replace(',', '.'));
     return isNaN(n) ? null : n;
   };
+  const rawAt = (cols, i)=>{
+    if(i === -1) return null;
+    const raw = (cols[i] !== undefined ? String(cols[i]) : '').trim();
+    return raw === '' ? null : raw;
+  };
 
   const parsed = [];
   for(let i=1;i<rows.length;i++){
@@ -1234,9 +1280,9 @@ function rowsToEntries(rows){
       route, monthIndex, monthLabel: MONTHS12[monthIndex],
       penumpang: numOrNullAt(cols, idx.penumpang),
       ritase: numOrNullAt(cols, idx.ritase),
-      headway: numOrNullAt(cols, idx.headway),
+      headway: normalizeHeadway(rawAt(cols, idx.headway)),
       kecepatan: numOrNullAt(cols, idx.kecepatan),
-      rtt: numOrNullAt(cols, idx.rtt),
+      rtt: normalizeRtt(rawAt(cols, idx.rtt)),
       km: numOrNullAt(cols, idx.km),
       loadfactor: normalizeLoadFactor(numOrNullAt(cols, idx.loadfactor)),
     });
@@ -1353,8 +1399,8 @@ async function saveInputEntry(){
   const monthIndex = parseInt(document.getElementById('inMonth').value, 10);
   const entry = {
     route, monthIndex, monthLabel: MONTHS12[monthIndex],
-    penumpang: numOrNull('inPenumpang'), ritase: numOrNull('inRitase'), headway: numOrNull('inHeadway'),
-    kecepatan: numOrNull('inKecepatan'), rtt: numOrNull('inRtt'), km: numOrNull('inKm'), loadfactor: normalizeLoadFactor(numOrNull('inLf')),
+    penumpang: numOrNull('inPenumpang'), ritase: numOrNull('inRitase'), headway: normalizeHeadway(numOrNull('inHeadway')),
+    kecepatan: numOrNull('inKecepatan'), rtt: normalizeRtt(numOrNull('inRtt')), km: numOrNull('inKm'), loadfactor: normalizeLoadFactor(numOrNull('inLf')),
   };
   const hasAny = ['penumpang','ritase','headway','kecepatan','rtt','km','loadfactor'].some(f=>entry[f]!==null);
   const msg = document.getElementById('formMsg');
