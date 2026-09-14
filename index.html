@@ -696,6 +696,18 @@ function normalizeDurationMinutes(v, minPlausible){
   if(v === null || v === undefined) return null;
   const s = String(v).trim();
   if(s === '') return null;
+
+  // Kalau ini string tanggal/waktu ISO (mis. dari Google Sheets yang mengirim
+  // sel berformat waktu sebagai objek Date -> "1899-12-30T02:09:00.000Z"),
+  // ambil langsung jam & menitnya dari situ.
+  const isoMatch = s.match(/T(\d{1,2}):(\d{2})(?::(\d{1,2}(?:\.\d+)?))?/);
+  if(isoMatch){
+    const h = parseInt(isoMatch[1], 10) || 0;
+    const m = parseInt(isoMatch[2], 10) || 0;
+    const sec = parseFloat(isoMatch[3] || '0') || 0;
+    return h*60 + m + sec/60;
+  }
+
   if(s.includes(':')) return hmsToMinutes(s, ':');
   const n = parseFloat(s.replace(',', '.'));
   if(isNaN(n)) return null;
