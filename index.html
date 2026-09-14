@@ -62,9 +62,9 @@ if(xr(e,"index.xml"))throw new Error("Unsupported NUMBERS 09 file");throw new Er
   --purple:#8b6fd8; --purple-soft:#ece4fb;
   --blue:#4ea1d3;   --blue-soft:#dcedf7;
 
-  --shadow-out: 0 14px 28px rgba(10,60,45,0.10), 0 2px 6px rgba(10,60,45,0.06);
-  --shadow-out-sm: 0 6px 14px rgba(10,60,45,0.10);
-  --shadow-in: inset 0 2px 5px rgba(10,60,45,0.10);
+  --shadow-out: 0 20px 40px rgba(9,46,35,0.18), 0 6px 14px rgba(9,46,35,0.10);
+  --shadow-out-sm: 0 10px 20px rgba(9,46,35,0.16), 0 2px 6px rgba(9,46,35,0.08);
+  --shadow-in: inset 0 2px 5px rgba(9,46,35,0.14);
   --radius: 20px;
 }
 *{box-sizing:border-box;}
@@ -156,6 +156,7 @@ nav.tabs button.active{
 .kpi{
   background:var(--card);border-radius:20px;box-shadow:var(--shadow-out);
   padding:16px; display:flex; align-items:center; gap:14px;
+  transition:box-shadow .2s ease, transform .2s ease;
 }
 .kpi .ring-wrap{position:relative;width:64px;height:64px;flex-shrink:0;}
 .kpi .ring-wrap canvas{width:64px!important;height:64px!important;}
@@ -166,7 +167,7 @@ nav.tabs button.active{
 .kpi .kpi-body{min-width:0;}
 .kpi .label{font-size:11.5px;color:var(--ink-soft);margin-bottom:4px;font-weight:600;}
 .kpi .value{font-family:'IBM Plex Mono',monospace;font-size:18px;font-weight:700;color:var(--ink);white-space:nowrap;overflow:hidden;text-overflow:ellipsis;}
-.kpi .delta{display:inline-flex;align-items:center;gap:3px;font-size:11px;font-weight:700;margin-top:5px;padding:2px 8px;border-radius:20px;}
+.kpi .delta{display:inline-flex;align-items:center;gap:3px;font-size:11px;font-weight:700;margin-top:5px;padding:2px 8px;border-radius:20px;cursor:help;border-bottom:1px dotted currentColor;}
 .kpi .delta.up{background:var(--teal-soft);color:#158a76;}
 .kpi .delta.down{background:var(--pink-soft);color:#c94861;}
 .kpi .delta.neutral{background:var(--line);color:var(--ink-soft);}
@@ -177,6 +178,11 @@ nav.tabs button.active{
 .card{
   background:var(--card);border-radius:20px;box-shadow:var(--shadow-out);
   padding:20px 22px 16px;
+  transition:box-shadow .2s ease, transform .2s ease;
+}
+.card:hover, .kpi:hover{
+  box-shadow: 0 26px 48px rgba(9,46,35,0.22), 0 8px 18px rgba(9,46,35,0.12);
+  transform: translateY(-2px);
 }
 .card h3{margin:0 0 2px;font-size:14.5px;font-weight:700;color:var(--ink);}
 .card .hint{font-size:12px;color:var(--ink-soft);margin-bottom:14px;}
@@ -403,12 +409,12 @@ button.icon-btn:hover{background:var(--pink-soft);}
         <div class="grid2">
           <div class="card tall">
             <h3>Jumlah Penumpang per Bulan</h3>
-            <div class="hint">Total seluruh trayek</div>
+            <div class="hint" id="hintPenumpangBulanan">Total seluruh trayek</div>
             <canvas id="chartPenumpangBulanan"></canvas>
           </div>
           <div class="card tall">
             <h3>Load Factor Rata-rata per Bulan</h3>
-            <div class="hint">Rata-rata seluruh trayek</div>
+            <div class="hint" id="hintLoadFactorBulanan">Rata-rata seluruh trayek</div>
             <canvas id="chartLoadFactorBulanan"></canvas>
           </div>
         </div>
@@ -416,12 +422,12 @@ button.icon-btn:hover{background:var(--pink-soft);}
         <div class="grid2">
           <div class="card">
             <h3>Ritase per Trayek</h3>
-            <div class="hint">Total ritase, bulan terakhir yang diimpor</div>
+            <div class="hint" id="hintRitaseTrayek">Total ritase, bulan terakhir yang diimpor</div>
             <canvas id="chartArmada"></canvas>
           </div>
           <div class="card">
             <h3>Load Factor per Trayek</h3>
-            <div class="hint">Rata-rata seluruh bulan yang diimpor</div>
+            <div class="hint" id="hintLoadFactorTrayek">Rata-rata seluruh bulan yang diimpor</div>
             <canvas id="chartLoadFactor"></canvas>
           </div>
         </div>
@@ -614,7 +620,7 @@ button.icon-btn:hover{background:var(--pink-soft);}
    ========================================================= */
 
 // GANTI dengan URL Web App Apps Script kamu setelah deploy.
-const APPS_SCRIPT_URL = 'https://script.google.com/macros/s/AKfycbwxUJnQUzdI2PLtM9si4n2p3tAjYdNedUyQLwSXmsnwoP1ps2BuFklKe9PBEyEc8imuGA/exec';
+const APPS_SCRIPT_URL = 'PASTE_URL_APPS_SCRIPT_DI_SINI';
 
 const ROUTE_ORDER = ['1A','1B','2A','2B','3A','3B','4A','4B','5A','5B','6','8','9','10','11','12','13','14','15','EV'];
 function routeLabel(code){ return code === 'EV' ? 'Listrik' : code; }
@@ -747,15 +753,16 @@ function kpiCardHtml(id, label, value, unit, ringText, deltaHtml){
   </div>`;
 }
 
-function deltaHtml(current, previous, higherIsBetter=true){
-  if(current==null || previous==null || previous===0) return '';
+function deltaHtml(current, previous, higherIsBetter=true, prevMonthShort=null, prevValueText=null){
+  if(current==null || previous==null || previous===0 || !prevMonthShort) return '';
   const diff = current - previous;
   const pct = (diff/Math.abs(previous))*100;
   const isUp = diff >= 0;
   const good = higherIsBetter ? isUp : !isUp;
   const cls = diff===0 ? 'neutral' : (good ? 'up' : 'down');
   const arrow = diff===0 ? '' : (isUp ? '&#8593; ' : '&#8595; ');
-  return `<span class="delta ${cls}">${arrow}${Math.abs(pct).toFixed(1)}% vs bulan sebelumnya</span>`;
+  const titleAttr = prevValueText ? ` title="${prevMonthShort}: ${prevValueText}"` : '';
+  return `<span class="delta ${cls}"${titleAttr}>${arrow}${Math.abs(pct).toFixed(1)}% vs ${prevMonthShort}</span>`;
 }
 
 /* =========================================================
@@ -800,11 +807,18 @@ function buildRingkasan(){
   const avgKecPrev = prevMonth!=null ? avg(forMonth(prevMonth,'kecepatan')) : null;
 
   const kpiRow = document.getElementById('kpiRow');
+  const lastLabel = MONTHS12_SHORT[lastMonth];
+  const prevLabel = prevMonth!=null ? MONTHS12_SHORT[prevMonth] : null;
+
   kpiRow.innerHTML =
-    kpiCardHtml('pnp', 'Total Penumpang', fmtInt(totalPnpLast), 'org', '&#128101;', deltaHtml(totalPnpLast, totalPnpPrev, true)) +
-    kpiCardHtml('lf', 'Rata-rata Load Factor', avgLfLast==null?'-':(avgLfLast*100).toFixed(1), '%', avgLfLast==null?'-':(avgLfLast*100).toFixed(0)+'%', deltaHtml(avgLfLast, avgLfPrev, true)) +
-    kpiCardHtml('rit', 'Total Ritase', fmtInt(totalRitLast), 'rit', '&#128257;', deltaHtml(totalRitLast, totalRitPrev, true)) +
-    kpiCardHtml('kec', 'Kecepatan Rata-rata', avgKecLast==null?'-':avgKecLast.toFixed(1), 'km/j', '&#9889;', deltaHtml(avgKecLast, avgKecPrev, true));
+    kpiCardHtml('pnp', `Total Penumpang &middot; ${lastLabel}`, fmtInt(totalPnpLast), 'org', '&#128101;',
+      deltaHtml(totalPnpLast, totalPnpPrev, true, prevLabel, fmtInt(totalPnpPrev)+' org')) +
+    kpiCardHtml('lf', `Rata-rata Load Factor &middot; ${lastLabel}`, avgLfLast==null?'-':(avgLfLast*100).toFixed(1), '%', avgLfLast==null?'-':(avgLfLast*100).toFixed(0)+'%',
+      deltaHtml(avgLfLast, avgLfPrev, true, prevLabel, avgLfPrev==null?null:(avgLfPrev*100).toFixed(1)+'%')) +
+    kpiCardHtml('rit', `Total Ritase &middot; ${lastLabel}`, fmtInt(totalRitLast), 'rit', '&#128257;',
+      deltaHtml(totalRitLast, totalRitPrev, true, prevLabel, fmtInt(totalRitPrev)+' rit')) +
+    kpiCardHtml('kec', `Kecepatan Rata-rata &middot; ${lastLabel}`, avgKecLast==null?'-':avgKecLast.toFixed(1), 'km/j', '&#9889;',
+      deltaHtml(avgKecLast, avgKecPrev, true, prevLabel, avgKecPrev==null?null:avgKecPrev.toFixed(1)+' km/j'));
 
   renderRing('ring-pnp', 100, COL_TEAL);
   renderRing('ring-lf', avgLfLast==null?0:Math.min(100,avgLfLast*100), COL_ORANGE);
@@ -821,28 +835,35 @@ function destroyRingkasanCharts(){ Object.values(ringkasanCharts).forEach(c=>c.d
 function buildRingkasanCharts(months){
   destroyRingkasanCharts();
   const labels = months.map(m=>MONTHS12_SHORT[m]);
+  const periodText = months.length===1 ? labels[0] : `${labels[0]}\u2013${labels[labels.length-1]}`;
 
   const pnpSeries = months.map(m=> sum(entries.filter(e=>e.monthIndex===m).map(e=>e.penumpang)) || null);
   ringkasanCharts.pnp = new Chart(document.getElementById('chartPenumpangBulanan'), lineCfg(labels, pnpSeries, COL_TEAL, fmtInt));
+  document.getElementById('hintPenumpangBulanan').textContent = `Total seluruh trayek \u2022 ${periodText} 2026`;
 
   const lfSeries = months.map(m=> avg(entries.filter(e=>e.monthIndex===m).map(e=>e.loadfactor)));
   ringkasanCharts.lf = new Chart(document.getElementById('chartLoadFactorBulanan'), lineCfg(labels, lfSeries, COL_ORANGE, fmtPct));
+  document.getElementById('hintLoadFactorBulanan').textContent = `Rata-rata seluruh trayek \u2022 ${periodText} 2026`;
 
   const lastMonth = months[months.length-1];
   const ritByRoute = ROUTE_ORDER.map(code=>{
     const e = entries.find(x=>x.route===code && x.monthIndex===lastMonth);
     return e && typeof e.ritase==='number' ? e.ritase : null;
   });
+  const ritRouteCount = ritByRoute.filter(v=>typeof v==='number').length;
   ringkasanCharts.rit = new Chart(document.getElementById('chartArmada'), {
     type:'bar',
     data:{ labels: ROUTE_ORDER.map(routeLabel), datasets:[{ data: ritByRoute, backgroundColor: ROUTE_ORDER.map(routeColor), borderRadius:8, maxBarThickness:22 }] },
     options: baseBarOpts(fmtInt)
   });
+  document.getElementById('hintRitaseTrayek').textContent = `Data bulan ${MONTHS12_SHORT[lastMonth]} 2026 \u2022 ${ritRouteCount}/${ROUTE_ORDER.length} trayek ada data`;
 
   const lfByRoute = ROUTE_ORDER.map(code=>{
     const vals = entries.filter(e=>e.route===code).map(e=>e.loadfactor);
     return avg(vals);
   });
+  const lfRouteCount = lfByRoute.filter(v=>typeof v==='number').length;
+  document.getElementById('hintLoadFactorTrayek').textContent = `Rata-rata ${periodText} 2026 \u2022 ${lfRouteCount}/${ROUTE_ORDER.length} trayek ada data`;
   ringkasanCharts.lfRoute = new Chart(document.getElementById('chartLoadFactor'), {
     type:'bar',
     data:{ labels: ROUTE_ORDER.map(routeLabel), datasets:[{ data: lfByRoute, backgroundColor: ROUTE_ORDER.map(routeColor), borderRadius:8, maxBarThickness:22 }] },
