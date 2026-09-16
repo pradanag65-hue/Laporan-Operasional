@@ -6,7 +6,7 @@
 <title>Dashboard Operasional TransJogja</title>
 <link rel="icon" href="data:,">
 <link rel="preconnect" href="https://fonts.googleapis.com">
-<link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700;800&family=IBM+Plex+Mono:wght@400;500;600&display=swap" rel="stylesheet">
+<link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700;800&family=IBM+Plex+Mono:wght@400;500;600&family=Playfair+Display:ital,wght@1,600&display=swap" rel="stylesheet">
 <script>
 /*!
  * Chart.js v4.4.4
@@ -44,39 +44,49 @@ if(xr(e,"index.xml"))throw new Error("Unsupported NUMBERS 09 file");throw new Er
 </script>
 <style>
 :root{
-  --bg:#e4f4ec;
-  --card:#ffffff;
-  --ink:#0f2e24;
-  --ink-soft:#5c7a6e;
-  --ink-faint:#93ab9f;
-  --line:#dcede4;
+  --bg:#f2ecdd;
+  --card:#fffdf7;
+  --ink:#1c2b21;
+  --ink-soft:#6b7566;
+  --ink-faint:#9aa392;
+  --line:#e7ddc2;
 
-  --brand-700:#0a5c46;
-  --brand-600:#0f6b52;
-  --brand-500:#149a75;
-  --brand-soft:#dcf3e8;
+  --brand-900:#0b2018;
+  --brand-700:#123526;
+  --brand-600:#17442f;
+  --brand-500:#1d5b3d;
+  --brand-soft:#e2efe4;
+
+  --gold-700:#a3791d;
+  --gold-600:#c9962c;
+  --gold-500:#d9ad4e;
+  --gold-soft:#f6ead0;
 
   --pink:#ef6f8e;   --pink-soft:#fce3e9;
-  --orange:#f0ab29; --orange-soft:#fdf0d1;
-  --teal:#149a75;   --teal-soft:#dcf3e8;
+  --orange:#c9962c; --orange-soft:#f6ead0;
+  --teal:#1d5b3d;   --teal-soft:#e2efe4;
   --purple:#8b6fd8; --purple-soft:#ece4fb;
-  --blue:#4ea1d3;   --blue-soft:#dcedf7;
+  --blue:#3d78ad;   --blue-soft:#dcedf7;
 
-  --shadow-out: 0 20px 40px rgba(9,46,35,0.18), 0 6px 14px rgba(9,46,35,0.10);
-  --shadow-out-sm: 0 10px 20px rgba(9,46,35,0.16), 0 2px 6px rgba(9,46,35,0.08);
-  --shadow-in: inset 0 2px 5px rgba(9,46,35,0.14);
+  /* alias supaya kompatibel dg CSS lama yang masih pakai nama brand-* */
+  --brand-700-old:var(--brand-700);
+
+  --shadow-out: 0 20px 40px rgba(30,22,6,0.16), 0 6px 14px rgba(30,22,6,0.09);
+  --shadow-out-sm: 0 10px 20px rgba(30,22,6,0.14), 0 2px 6px rgba(30,22,6,0.07);
+  --shadow-in: inset 0 2px 5px rgba(30,22,6,0.12);
   --radius: 20px;
 }
 *{box-sizing:border-box;}
 html,body{margin:0;padding:0;}
 body{
-  background: radial-gradient(circle at 85% 8%, #cdece0 0%, var(--bg) 45%);
+  background: radial-gradient(circle at 85% 6%, #e7dcb8 0%, var(--bg) 42%);
   color:var(--ink);
   font-family:'Plus Jakarta Sans', sans-serif;
   font-size:15px;
   line-height:1.5;
   -webkit-font-smoothing:antialiased;
   padding:22px;
+
   min-height:100vh;
 }
 .mono{font-family:'IBM Plex Mono', monospace;}
@@ -91,7 +101,7 @@ h1,h2,h3{font-family:'Plus Jakarta Sans',sans-serif;}
   margin:0 auto;
 }
 .sidebar{
-  background:var(--card);
+  background:linear-gradient(180deg, var(--brand-700) 0%, var(--brand-900) 100%);
   border-radius:24px;
   box-shadow:var(--shadow-out);
   padding:24px 16px;
@@ -101,46 +111,67 @@ h1,h2,h3{font-family:'Plus Jakarta Sans',sans-serif;}
   align-self:start;
   position:sticky; top:22px;
 }
-.brand{display:flex;align-items:center;gap:10px;padding:0 6px 18px;border-bottom:1px solid var(--line);}
+.brand{display:flex;align-items:center;gap:10px;padding:0 6px 18px;border-bottom:1px solid rgba(255,255,255,0.14);}
 .brand .mark{
   width:42px;height:42px;border-radius:14px;
-  background:linear-gradient(135deg, var(--brand-500), var(--brand-700));
+  background:rgba(255,255,255,0.12);
   display:flex;align-items:center;justify-content:center;
-  color:#fff;font-weight:800;font-size:15px;
+  color:var(--gold-500);font-weight:800;font-size:18px;
   box-shadow:var(--shadow-out-sm);
 }
-.brand h1{font-size:15.5px;margin:0;font-weight:700;color:var(--ink);}
-.brand p{margin:2px 0 0;font-size:11.5px;color:var(--ink-faint);}
+.brand h1{font-size:16px;margin:0;font-weight:800;color:#fff;}
+.brand h1 .accent{color:var(--gold-500);}
+.brand p{margin:2px 0 0;font-size:11.5px;color:#a9c2af;}
 
 nav.tabs{display:flex;flex-direction:column;gap:8px;}
 nav.tabs button{
   all:unset;cursor:pointer;
   padding:12px 14px;border-radius:14px;
   font-size:13.5px;font-weight:600;
-  color:var(--ink-soft);
+  color:#bcd0c0;
   display:flex;align-items:center;gap:10px;
   transition:all .15s ease;
 }
 nav.tabs button svg{opacity:.8;flex-shrink:0;}
-nav.tabs button:hover{background:var(--brand-soft);color:var(--brand-700);}
+nav.tabs button:hover{background:rgba(255,255,255,0.08);color:#fff;}
 nav.tabs button.active{
-  background:var(--brand-soft);
-  color:var(--brand-700);
-  font-weight:700;
+  background:linear-gradient(135deg, var(--gold-500), var(--gold-700));
+  color:var(--brand-900);
+  font-weight:800;
+  box-shadow:0 8px 18px rgba(0,0,0,0.25);
 }
 .sidebar-foot{
-  margin-top:auto;
   border-radius:16px;
   padding:16px 14px;
-  background:linear-gradient(160deg, var(--brand-soft), var(--blue-soft));
+  background:rgba(255,255,255,0.06);
   box-shadow:var(--shadow-out-sm);
 }
-.sidebar-foot .foot-title{font-size:12.5px;font-weight:700;color:var(--ink);margin:0 0 4px;}
-.sidebar-foot .foot-text{font-size:11px;color:var(--ink-soft);line-height:1.4;margin:0;}
+.sidebar-foot .foot-title{font-size:12.5px;font-weight:700;color:var(--gold-500);margin:0 0 4px;}
+.sidebar-foot .foot-text{font-size:11px;color:#a9c2af;line-height:1.4;margin:0;}
+.sidebar-tagline{
+  margin-top:auto;
+  text-align:center;
+  font-family:'Playfair Display', serif;
+  font-style:italic;
+  font-size:15px;
+  color:var(--gold-500);
+  line-height:1.4;
+  padding:0 8px;
+  opacity:0.9;
+}
+.sidebar-tagline .rule{
+  width:36px;height:1px;background:var(--gold-500);opacity:0.5;
+  margin:8px auto 0;
+}
 
 .main{padding:4px 4px 60px;}
 .page-head{display:flex;justify-content:space-between;align-items:flex-end;flex-wrap:wrap;gap:14px;margin-bottom:24px;}
-.page-head h2{font-size:24px;margin:0 0 4px;font-weight:800;letter-spacing:-0.01em;color:var(--ink);}
+.page-head h2{font-size:26px;margin:0 0 4px;font-weight:800;letter-spacing:-0.01em;color:var(--ink);font-family:'Playfair Display',serif;}
+.page-head .eyebrow{font-size:12.5px;color:var(--ink-soft);margin-bottom:2px;}
+.tugu-watermark{
+  position:absolute; right:6%; top:-30px; height:200px; width:auto;
+  fill:var(--gold-600); opacity:0.10; pointer-events:none; z-index:0;
+}
 .page-head .sub{color:var(--ink-soft);font-size:13.5px;}
 .period-pill{
   font-family:'IBM Plex Mono',monospace;font-size:12px;font-weight:600;
@@ -157,6 +188,7 @@ nav.tabs button.active{
   background:var(--card);border-radius:20px;box-shadow:var(--shadow-out);
   padding:16px; display:flex; align-items:center; gap:14px;
   transition:box-shadow .2s ease, transform .2s ease;
+  border-left:4px solid var(--kpi-accent, var(--brand-500));
 }
 .kpi .ring-wrap{position:relative;width:64px;height:64px;flex-shrink:0;}
 .kpi .ring-wrap canvas{width:64px!important;height:64px!important;}
@@ -331,17 +363,17 @@ button.icon-btn:hover{background:var(--pink-soft);}
 }
 .floaty-ring{
   position:absolute; inset:0; border-radius:50%;
-  background:var(--brand-500);
+  background:var(--gold-500);
   opacity:0.4;
   animation: floaty-pulse 2.8s ease-out infinite;
 }
 .floaty-ring-2{ animation-delay:1.4s; }
 .floaty-bubble{
   position:relative; width:52px; height:52px; border-radius:50%;
-  background:linear-gradient(135deg, var(--brand-500), var(--brand-700));
+  background:linear-gradient(135deg, var(--gold-500), var(--gold-700));
   display:flex; align-items:center; justify-content:center;
-  font-size:22px; color:#fff;
-  box-shadow:0 10px 24px rgba(15,107,82,0.4);
+  font-size:22px; color:var(--brand-900);
+  box-shadow:0 10px 24px rgba(163,121,29,0.45);
   animation: floaty-bob 3s ease-in-out infinite;
   transition: transform .2s ease;
 }
@@ -359,16 +391,159 @@ button.icon-btn:hover{background:var(--pink-soft);}
   .floaty{ right:16px; bottom:16px; width:48px; height:48px; }
   .floaty-bubble{ width:44px; height:44px; font-size:19px; }
 }
+
+/* ---- role-based visibility ---- */
+.role-guest nav.tabs button[data-tab="import"]{ display:none; }
+.role-guest .admin-only, .role-guest .input-write{ display:none !important; }
+.role-input .admin-only{ display:none !important; }
+.shell{ display:none; }
+body.authed .shell{ display:grid; }
+
+/* ---- user badge (role + logout) ---- */
+.user-badge{
+  display:flex; align-items:center; justify-content:space-between;
+  gap:8px; padding:10px 12px; border-radius:12px;
+  background:var(--card); box-shadow:var(--shadow-in);
+  font-size:12px; margin-bottom:4px;
+}
+.user-badge .role-name{ font-weight:700; color:var(--ink); }
+.user-badge .role-name .tag{
+  display:inline-block; margin-left:6px; padding:2px 8px; border-radius:20px;
+  font-size:10.5px; font-weight:700; background:var(--brand-soft); color:var(--brand-700);
+}
+.user-badge button{
+  all:unset; cursor:pointer; font-size:11px; color:var(--ink-soft); font-weight:600;
+  padding:5px 9px; border-radius:8px;
+}
+.user-badge button:hover{ background:var(--pink-soft); color:#c94861; }
+
+/* ---- login overlay ---- */
+.login-overlay{
+  display:flex; align-items:center; justify-content:center;
+  position:fixed; inset:0; z-index:100;
+  background: radial-gradient(circle at 80% 10%, #cdece0 0%, var(--bg) 55%);
+  padding:20px;
+}
+.login-card{
+  width:100%; max-width:380px;
+  background:var(--card); border-radius:24px; box-shadow:var(--shadow-out);
+  padding:34px 30px;
+}
+.login-brand{ text-align:center; margin-bottom:22px; }
+.login-mark{
+  width:56px; height:56px; margin:0 auto 12px; border-radius:16px;
+  background:linear-gradient(135deg, var(--brand-500), var(--brand-700));
+  display:flex; align-items:center; justify-content:center; font-size:26px;
+  box-shadow:var(--shadow-out-sm);
+}
+.login-brand h1{ margin:0; font-size:20px; font-weight:800; color:var(--ink); }
+.login-brand p{ margin:2px 0 0; font-size:12.5px; color:var(--ink-soft); }
+.login-sub{ text-align:center; font-size:13px; color:var(--ink-soft); margin:0 0 18px; }
+.role-grid{ display:grid; grid-template-columns:repeat(3,1fr); gap:10px; margin-bottom:6px; }
+.role-btn{
+  all:unset; cursor:pointer; text-align:center;
+  padding:16px 8px; border-radius:16px;
+  background:var(--card); box-shadow:var(--shadow-out-sm);
+  font-size:12.5px; font-weight:700; color:var(--ink);
+  display:flex; flex-direction:column; align-items:center; gap:8px;
+  transition:transform .15s ease, box-shadow .15s ease;
+}
+.role-btn .role-ic{
+  width:38px; height:38px; border-radius:12px;
+  display:flex; align-items:center; justify-content:center; font-size:17px; color:#fff;
+}
+.role-btn[data-role="admin"] .role-ic{ background:linear-gradient(135deg, var(--brand-500), var(--brand-700)); }
+.role-btn[data-role="input"] .role-ic{ background:linear-gradient(135deg, #f0ab29, #c9962c); }
+.role-btn[data-role="guest"] .role-ic{ background:linear-gradient(135deg, var(--blue), #366f95); }
+.role-btn:hover{ transform:translateY(-2px); }
+.login-form{ margin-top:18px; }
+.login-actions{ display:flex; gap:10px; margin-top:12px; }
+.login-msg{ font-size:12.5px; color:#c94861; margin-top:10px; min-height:16px; }
+
+/* ---- ornamen sudut halaman (motif geometris orisinal, bukan batik asli) ---- */
+.corner-ornament{
+  position:fixed; width:120px; height:120px; pointer-events:none; z-index:1;
+  opacity:0.5;
+}
+.corner-ornament svg{ width:100%; height:100%; }
+.corner-tl{ top:0; left:0; }
+.corner-tr{ top:0; right:0; transform:scaleX(-1); }
+.corner-bl{ bottom:0; left:0; transform:scaleY(-1); }
+.corner-br{ bottom:0; right:0; transform:scale(-1,-1); }
+@media (max-width:920px){ .corner-ornament{ width:70px; height:70px; } }
 </style>
 </head>
 <body>
 
+<div class="corner-ornament corner-tl" aria-hidden="true">
+  <svg viewBox="0 0 120 120" xmlns="http://www.w3.org/2000/svg" fill="none" stroke="#c9962c" stroke-width="1.4">
+    <path d="M4 46 C 4 20, 20 4, 46 4" stroke-opacity="0.7"/>
+    <path d="M4 70 C 4 32, 32 4, 70 4" stroke-opacity="0.4"/>
+    <circle cx="4" cy="46" r="3" fill="#c9962c" stroke="none"/>
+    <circle cx="46" cy="4" r="3" fill="#c9962c" stroke="none"/>
+    <path d="M20 20 Q28 12 20 6 Q14 12 20 20 Z" fill="#c9962c" fill-opacity="0.5" stroke="none"/>
+  </svg>
+</div>
+<div class="corner-ornament corner-tr" aria-hidden="true">
+  <svg viewBox="0 0 120 120" xmlns="http://www.w3.org/2000/svg" fill="none" stroke="#c9962c" stroke-width="1.4">
+    <path d="M4 46 C 4 20, 20 4, 46 4" stroke-opacity="0.7"/>
+    <path d="M4 70 C 4 32, 32 4, 70 4" stroke-opacity="0.4"/>
+    <circle cx="4" cy="46" r="3" fill="#c9962c" stroke="none"/>
+    <circle cx="46" cy="4" r="3" fill="#c9962c" stroke="none"/>
+    <path d="M20 20 Q28 12 20 6 Q14 12 20 20 Z" fill="#c9962c" fill-opacity="0.5" stroke="none"/>
+  </svg>
+</div>
+<div class="corner-ornament corner-bl" aria-hidden="true">
+  <svg viewBox="0 0 120 120" xmlns="http://www.w3.org/2000/svg" fill="none" stroke="#c9962c" stroke-width="1.4">
+    <path d="M4 46 C 4 20, 20 4, 46 4" stroke-opacity="0.7"/>
+    <path d="M4 70 C 4 32, 32 4, 70 4" stroke-opacity="0.4"/>
+    <circle cx="4" cy="46" r="3" fill="#c9962c" stroke="none"/>
+    <circle cx="46" cy="4" r="3" fill="#c9962c" stroke="none"/>
+    <path d="M20 20 Q28 12 20 6 Q14 12 20 20 Z" fill="#c9962c" fill-opacity="0.5" stroke="none"/>
+  </svg>
+</div>
+<div class="corner-ornament corner-br" aria-hidden="true">
+  <svg viewBox="0 0 120 120" xmlns="http://www.w3.org/2000/svg" fill="none" stroke="#c9962c" stroke-width="1.4">
+    <path d="M4 46 C 4 20, 20 4, 46 4" stroke-opacity="0.7"/>
+    <path d="M4 70 C 4 32, 32 4, 70 4" stroke-opacity="0.4"/>
+    <circle cx="4" cy="46" r="3" fill="#c9962c" stroke="none"/>
+    <circle cx="46" cy="4" r="3" fill="#c9962c" stroke="none"/>
+    <path d="M20 20 Q28 12 20 6 Q14 12 20 20 Z" fill="#c9962c" fill-opacity="0.5" stroke="none"/>
+  </svg>
+</div>
+
+<div class="login-overlay" id="loginOverlay">
+  <div class="login-card">
+    <div class="login-brand">
+      <div class="login-mark">&#128652;</div>
+      <h1 style="color:var(--ink);">Trans<span style="color:var(--gold-600);">Jogja</span></h1>
+      <p>PT AMI &middot; Unit Transportasi</p>
+    </div>
+    <p class="login-sub">Pilih peran untuk masuk</p>
+    <div class="role-grid">
+      <button class="role-btn" data-role="admin"><span class="role-ic">&#128100;</span>Admin</button>
+      <button class="role-btn" data-role="input"><span class="role-ic">&#9998;&#65039;</span>Input</button>
+      <button class="role-btn" data-role="guest"><span class="role-ic">&#128065;&#65039;</span>Guest</button>
+    </div>
+    <div class="login-form" id="loginPinWrap" style="display:none;">
+      <label class="field">PIN <span id="loginRoleLabel"></span>
+        <input type="password" id="loginPin" placeholder="Masukkan PIN" inputmode="numeric">
+      </label>
+      <div class="login-actions">
+        <button class="primary" id="btnLoginSubmit" style="flex:1;">Masuk</button>
+        <button class="ghost" id="btnLoginBack">Batal</button>
+      </div>
+      <div class="login-msg" id="loginMsg"></div>
+    </div>
+  </div>
+</div>
+
 <div class="shell">
   <aside class="sidebar">
     <div class="brand">
-      <div class="mark">TJ</div>
+      <div class="mark">&#128652;</div>
       <div>
-        <h1>Ops TransJogja</h1>
+        <h1>Trans<span class="accent">Jogja</span></h1>
         <p>PT AMI &middot; Unit Transportasi</p>
       </div>
     </div>
@@ -377,9 +552,17 @@ button.icon-btn:hover{background:var(--pink-soft);}
       <button data-tab="trayek">Data Trayek</button>
       <button data-tab="import">Import Data</button>
     </nav>
+    <div class="user-badge">
+      <span class="role-name">Masuk sebagai<span class="tag" id="userRoleBadge">-</span></span>
+      <button id="btnLogout">Keluar</button>
+    </div>
     <div class="sidebar-foot">
       <p class="foot-title">Sumber Data</p>
       <p class="foot-text">100% dari data yang kamu import sendiri &mdash; tidak ada data bawaan/contoh.</p>
+    </div>
+    <div class="sidebar-tagline">
+      TransJogja<br>Melayani dengan Hati
+      <div class="rule"></div>
     </div>
   </aside>
 
@@ -387,8 +570,16 @@ button.icon-btn:hover{background:var(--pink-soft);}
 
     <!-- ================= RINGKASAN ================= -->
     <section class="tab-panel active" id="panel-ringkasan">
-      <div class="page-head">
+      <div class="page-head" style="position:relative; overflow:hidden;">
+        <svg class="tugu-watermark" viewBox="0 0 200 260" xmlns="http://www.w3.org/2000/svg" aria-hidden="true">
+          <rect x="70" y="150" width="60" height="90" rx="2"/>
+          <rect x="80" y="90" width="40" height="65" rx="2"/>
+          <rect x="88" y="40" width="24" height="55" rx="2"/>
+          <polygon points="100,0 116,40 84,40"/>
+          <rect x="60" y="235" width="80" height="10" rx="2"/>
+        </svg>
         <div>
+          <div class="eyebrow">Selamat Datang di</div>
           <h2>Ringkasan Operasional</h2>
           <div class="sub">Kinerja armada, penumpang, dan load factor seluruh trayek</div>
         </div>
@@ -634,7 +825,7 @@ function routeCodeFromLabel(label){
 const MONTHS12 = ['Januari','Februari','Maret','April','Mei','Juni','Juli','Agustus','September','Oktober','November','Desember'];
 const MONTHS12_SHORT = ['Jan','Feb','Mar','Apr','Mei','Jun','Jul','Agu','Sep','Okt','Nov','Des'];
 
-const COL_TEAL = '#149a75';
+const COL_TEAL = '#1d5b3d';
 const COL_ORANGE = '#f0ab29';
 const COL_PINK = '#ef6f8e';
 const COL_PURPLE = '#8b6fd8';
@@ -801,9 +992,9 @@ function renderRing(canvasId, pctFill, color){
   });
 }
 
-function kpiCardHtml(id, label, value, unit, ringText, deltaHtml){
+function kpiCardHtml(id, label, value, unit, ringText, deltaHtml, accentColor){
   return `
-  <div class="kpi">
+  <div class="kpi" style="--kpi-accent:${accentColor || 'var(--brand-500)'}">
     <div class="ring-wrap">
       <canvas id="ring-${id}"></canvas>
       <div class="ring-value">${ringText}</div>
@@ -875,17 +1066,17 @@ function buildRingkasan(){
 
   kpiRow.innerHTML =
     kpiCardHtml('pnp', `Total Penumpang &middot; ${lastLabel}`, fmtInt(totalPnpLast), 'org', '&#128101;',
-      deltaHtml(totalPnpLast, totalPnpPrev, true, prevLabel, fmtInt(totalPnpPrev)+' org')) +
+      deltaHtml(totalPnpLast, totalPnpPrev, true, prevLabel, fmtInt(totalPnpPrev)+' org'), COL_TEAL) +
     kpiCardHtml('lf', `Rata-rata Load Factor &middot; ${lastLabel}`, avgLfLast==null?'-':(avgLfLast*100).toFixed(1), '%', avgLfLast==null?'-':(avgLfLast*100).toFixed(0)+'%',
-      deltaHtml(avgLfLast, avgLfPrev, true, prevLabel, avgLfPrev==null?null:(avgLfPrev*100).toFixed(1)+'%')) +
+      deltaHtml(avgLfLast, avgLfPrev, true, prevLabel, avgLfPrev==null?null:(avgLfPrev*100).toFixed(1)+'%'), COL_GOLD) +
     kpiCardHtml('rit', `Total Ritase &middot; ${lastLabel}`, fmtInt(totalRitLast), 'rit', '&#128257;',
-      deltaHtml(totalRitLast, totalRitPrev, true, prevLabel, fmtInt(totalRitPrev)+' rit')) +
+      deltaHtml(totalRitLast, totalRitPrev, true, prevLabel, fmtInt(totalRitPrev)+' rit'), COL_BLUE) +
     kpiCardHtml('kec', `Kecepatan Rata-rata &middot; ${lastLabel}`, avgKecLast==null?'-':avgKecLast.toFixed(1), 'km/j', '&#9889;',
-      deltaHtml(avgKecLast, avgKecPrev, true, prevLabel, avgKecPrev==null?null:avgKecPrev.toFixed(1)+' km/j'));
+      deltaHtml(avgKecLast, avgKecPrev, true, prevLabel, avgKecPrev==null?null:avgKecPrev.toFixed(1)+' km/j'), COL_PURPLE);
 
   renderRing('ring-pnp', 100, COL_TEAL);
-  renderRing('ring-lf', avgLfLast==null?0:Math.min(100,avgLfLast*100), COL_ORANGE);
-  renderRing('ring-rit', 100, COL_PINK);
+  renderRing('ring-lf', avgLfLast==null?0:Math.min(100,avgLfLast*100), COL_GOLD);
+  renderRing('ring-rit', 100, COL_BLUE);
   renderRing('ring-kec', 100, COL_PURPLE);
 
   buildRingkasanCharts(months);
@@ -1357,6 +1548,11 @@ function renderCsvPreview(rows){
 async function saveCsvRows(){
   const saveMsg = document.getElementById('csvSaveMsg');
   if(csvParsedRows.length === 0) return;
+  if(currentRole === 'guest'){
+    saveMsg.textContent = 'Role Guest hanya bisa melihat data, tidak bisa import.';
+    saveMsg.className = 'import-msg err';
+    return;
+  }
   if(!apiConfigured()){
     saveMsg.textContent = 'APPS_SCRIPT_URL belum diisi di app.js — lihat PANDUAN-SETUP.md.';
     saveMsg.className = 'import-msg err';
@@ -1364,9 +1560,14 @@ async function saveCsvRows(){
   }
   saveMsg.textContent = `Menyimpan 0/${csvParsedRows.length}...`;
   saveMsg.className = 'import-msg';
-  let okCount = 0;
+  let okCount = 0, skippedCount = 0;
   for(let i=0;i<csvParsedRows.length;i++){
     const r = csvParsedRows[i];
+    if(!canWriteEntry(r.route, r.monthIndex)){
+      skippedCount++;
+      saveMsg.textContent = `Menyimpan ${i+1}/${csvParsedRows.length}... (${skippedCount} dilewati, sudah ada)`;
+      continue;
+    }
     try{
       const resp = await callApi({ action:'save', entry:{
         trayek:r.route, bulanIndex:r.monthIndex, bulanLabel:r.monthLabel,
@@ -1382,8 +1583,9 @@ async function saveCsvRows(){
     }catch(e){ /* lanjut ke baris berikutnya */ }
     saveMsg.textContent = `Menyimpan ${i+1}/${csvParsedRows.length}...`;
   }
-  saveMsg.textContent = `Selesai: ${okCount}/${csvParsedRows.length} baris tersimpan ke Google Sheet.`;
-  saveMsg.className = okCount === csvParsedRows.length ? 'import-msg ok' : 'import-msg err';
+  const skippedNote = skippedCount>0 ? ` (${skippedCount} dilewati karena role Input tidak boleh menimpa data lama)` : '';
+  saveMsg.textContent = `Selesai: ${okCount}/${csvParsedRows.length} baris tersimpan ke Google Sheet.${skippedNote}`;
+  saveMsg.className = (okCount + skippedCount) === csvParsedRows.length && skippedCount===0 ? 'import-msg ok' : 'import-msg err';
 
   csvParsedRows = [];
   document.getElementById('csvPreviewWrap').style.display = 'none';
@@ -1421,13 +1623,24 @@ function numOrNull(id){
 async function saveInputEntry(){
   const route = document.getElementById('inRoute').value;
   const monthIndex = parseInt(document.getElementById('inMonth').value, 10);
+  const msg = document.getElementById('formMsg');
+
+  if(!canWriteEntry(route, monthIndex)){
+    if(currentRole === 'guest'){
+      msg.textContent = 'Role Guest hanya bisa melihat data, tidak bisa menyimpan.';
+    } else {
+      msg.textContent = 'Data trayek & bulan ini sudah ada — role Input hanya boleh menambah data baru, bukan menimpa. Hubungi Admin untuk mengubahnya.';
+    }
+    msg.style.color = '#c94861';
+    return;
+  }
+
   const entry = {
     route, monthIndex, monthLabel: MONTHS12[monthIndex],
     penumpang: numOrNull('inPenumpang'), ritase: numOrNull('inRitase'), headway: normalizeHeadway(numOrNull('inHeadway')),
     kecepatan: numOrNull('inKecepatan'), rtt: normalizeRtt(numOrNull('inRtt')), km: numOrNull('inKm'), loadfactor: normalizeLoadFactor(numOrNull('inLf')),
   };
   const hasAny = ['penumpang','ritase','headway','kecepatan','rtt','km','loadfactor'].some(f=>entry[f]!==null);
-  const msg = document.getElementById('formMsg');
   if(!hasAny){ msg.textContent='Isi minimal satu kolom data.'; msg.style.color='#c94861'; return; }
   if(!apiConfigured()){ msg.textContent='APPS_SCRIPT_URL belum diisi — lihat PANDUAN-SETUP.md.'; msg.style.color='#c94861'; return; }
 
@@ -1451,6 +1664,7 @@ async function saveInputEntry(){
 }
 
 async function deleteInputEntry(route, monthIndex){
+  if(currentRole !== 'admin') return; // hanya Admin yang boleh menghapus
   entries = entries.filter(e=>!(e.route===route && e.monthIndex===monthIndex));
   renderInputTable();
   buildRingkasan();
@@ -1468,7 +1682,7 @@ function renderInputTable(){
   const sorted = [...entries].sort((a,b)=>
     a.monthIndex - b.monthIndex || ROUTE_ORDER.indexOf(a.route) - ROUTE_ORDER.indexOf(b.route)
   );
-  let html = '<thead><tr><th>Bulan</th><th>Trayek</th><th>Penumpang</th><th>Ritase</th><th>Headway</th><th>Kecepatan</th><th>RTT</th><th>Km Tempuh</th><th>Load Factor</th><th></th></tr></thead><tbody>';
+  let html = '<thead><tr><th>Bulan</th><th>Trayek</th><th>Penumpang</th><th>Ritase</th><th>Headway</th><th>Kecepatan</th><th>RTT</th><th>Km Tempuh</th><th>Load Factor</th>' + (currentRole==='admin' ? '<th></th>' : '') + '</tr></thead><tbody>';
   sorted.forEach(e=>{
     html += `<tr>
       <td>${e.monthLabel}</td><td><span class="route-dot" style="background:${routeColor(e.route)}"></span>${routeLabel(e.route)}</td>
@@ -1479,7 +1693,7 @@ function renderInputTable(){
       <td>${e.rtt==null?'-':e.rtt}</td>
       <td>${e.km==null?'-':fmtInt(e.km)}</td>
       <td>${e.loadfactor==null?'-':fmtPct(e.loadfactor)}</td>
-      <td><button class="icon-btn" data-route="${e.route}" data-month="${e.monthIndex}">Hapus</button></td>
+      ${currentRole==='admin' ? `<td><button class="icon-btn" data-route="${e.route}" data-month="${e.monthIndex}">Hapus</button></td>` : ''}
     </tr>`;
   });
   html += '</tbody>';
@@ -1530,6 +1744,110 @@ function exportBackupXlsx(){
 }
 
 /* =========================================================
+   AUTENTIKASI & ROLE (Admin / Input / Guest)
+   ---------------------------------------------------------
+   Catatan penting: ini proteksi ringan di sisi browser saja (client-side),
+   BUKAN keamanan tingkat enterprise. PIN tersimpan sebagai teks biasa di
+   file ini dan bisa dilihat siapa pun yang membuka source code halaman.
+   Cocok untuk membatasi akses tim internal secara informal, TAPI JANGAN
+   dipakai untuk melindungi data benar-benar sensitif/rahasia.
+   Ganti PIN di bawah ini sebelum dipakai.
+   ========================================================= */
+const ROLE_PINS = { admin:'2026', input:'1234' }; // GANTI PIN default ini
+const ROLE_LABELS = { admin:'Admin', input:'Input', guest:'Guest' };
+let currentRole = null;
+let pendingLoginRole = null;
+
+function initAuth(){
+  const saved = localStorage.getItem('tj-role');
+  if(saved && ROLE_LABELS[saved]){
+    currentRole = saved;
+    applyRole();
+    hideLogin();
+  } else {
+    showLogin();
+  }
+
+  document.querySelectorAll('.role-btn').forEach(btn=>{
+    btn.addEventListener('click', ()=>{
+      const role = btn.dataset.role;
+      if(role === 'guest'){
+        loginAs('guest');
+        return;
+      }
+      pendingLoginRole = role;
+      document.getElementById('loginRoleLabel').textContent = '(' + ROLE_LABELS[role] + ')';
+      document.getElementById('loginPinWrap').style.display = 'block';
+      document.getElementById('loginMsg').textContent = '';
+      const pinInput = document.getElementById('loginPin');
+      pinInput.value = '';
+      pinInput.focus();
+    });
+  });
+
+  document.getElementById('btnLoginSubmit').addEventListener('click', submitLoginPin);
+  document.getElementById('loginPin').addEventListener('keydown', (e)=>{
+    if(e.key === 'Enter') submitLoginPin();
+  });
+  document.getElementById('btnLoginBack').addEventListener('click', ()=>{
+    document.getElementById('loginPinWrap').style.display = 'none';
+    pendingLoginRole = null;
+  });
+  document.getElementById('btnLogout').addEventListener('click', logout);
+}
+
+function submitLoginPin(){
+  const pin = document.getElementById('loginPin').value;
+  const msg = document.getElementById('loginMsg');
+  if(pendingLoginRole && pin === ROLE_PINS[pendingLoginRole]){
+    loginAs(pendingLoginRole);
+  } else {
+    msg.textContent = 'PIN salah, coba lagi.';
+  }
+}
+
+function loginAs(role){
+  currentRole = role;
+  localStorage.setItem('tj-role', role);
+  applyRole();
+  hideLogin();
+}
+
+function logout(){
+  currentRole = null;
+  localStorage.removeItem('tj-role');
+  document.body.classList.remove('role-admin','role-input','role-guest','authed');
+  document.querySelectorAll('nav.tabs button').forEach(b=>b.classList.remove('active'));
+  document.querySelector('nav.tabs button[data-tab="ringkasan"]').classList.add('active');
+  document.querySelectorAll('.tab-panel').forEach(p=>p.classList.remove('active'));
+  document.getElementById('panel-ringkasan').classList.add('active');
+  showLogin();
+}
+
+function showLogin(){ document.getElementById('loginOverlay').style.display = 'flex'; }
+function hideLogin(){ document.getElementById('loginOverlay').style.display = 'none'; }
+
+function applyRole(){
+  document.body.classList.remove('role-admin','role-input','role-guest');
+  document.body.classList.add('role-' + currentRole, 'authed');
+  const badge = document.getElementById('userRoleBadge');
+  if(badge) badge.textContent = ROLE_LABELS[currentRole];
+  renderInputTable(); // render ulang supaya tombol Hapus muncul/hilang sesuai role
+}
+
+// Role Admin: bebas tambah & timpa data apa saja.
+// Role Input: hanya boleh menambah baris BARU (trayek+bulan yang belum ada),
+//             tidak boleh menimpa data yang sudah ada (itu dianggap "edit").
+// Role Guest: tidak boleh menulis apa pun.
+function canWriteEntry(route, monthIndex){
+  if(currentRole === 'admin') return true;
+  if(currentRole === 'input'){
+    return !entries.some(e=>e.route===route && e.monthIndex===monthIndex);
+  }
+  return false;
+}
+
+/* =========================================================
    INIT
    ========================================================= */
 function buildFloatyWidget(){
@@ -1541,6 +1859,7 @@ function buildFloatyWidget(){
 }
 
 (async function init(){
+  initAuth();
   buildRouteSelect();
   buildImportPanel();
   buildInputForm();
