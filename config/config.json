@@ -1,0 +1,64 @@
+{
+  "_catatan": "Isi appsScriptUrl dengan URL Web App dari Google Apps Script kamu. Ganti juga PIN di bawah sebelum dipakai.",
+
+  "appsScriptUrl": "PASTE_URL_APPS_SCRIPT_DI_SINI",
+
+  "app": {
+    "nama": "Ops TransJogja",
+    "subJudul": "PT AMI · Unit Transportasi",
+    "tagline": "TransJogja\nMelayani dengan Hati",
+    "tahunData": 2026
+  },
+
+  "auth": {
+    "_catatan": "PIN ini proteksi ringan sisi browser saja — bisa dilihat siapa pun lewat DevTools. Jangan dipakai untuk data rahasia.",
+    "pins": {
+      "admin": "2026",
+      "input": "1234"
+    },
+    "labels": {
+      "admin": "Admin",
+      "input": "Input",
+      "guest": "Guest"
+    }
+  },
+
+  "trayek": {
+    "urutan": ["1A","1B","2A","2B","3A","3B","4A","4B","5A","5B","6","8","9","10","11","12","13","14","15","EV"],
+    "aliasTampilan": {
+      "EV": "Listrik"
+    }
+  },
+
+  "target": {
+    "_catatan": "Target kinerja / SPM default. Bisa diubah Admin lewat tab Tentang (tersimpan di localStorage browser).",
+    "loadFactor": 0.5,
+    "headway": 15,
+    "kecepatan": 15
+  },
+
+  "anomali": {
+    "_catatan": "Ambang batas penurunan bulan-ke-bulan (persen) untuk masuk daftar 'Trayek Perlu Perhatian'.",
+    "ambangPenurunanPersen": -15
+  },
+
+  "validasi": {
+    "_catatan": "Batas wajar untuk menandai nilai janggal saat import (hanya peringatan, tidak memblokir).",
+    "headwayMaksMenit": 120,
+    "rttMaksMenit": 300,
+    "kecepatanMaksKmJam": 80
+  },
+
+  "warna": {
+    "teal": "#1d5b3d",
+    "orange": "#c9962c",
+    "pink": "#ef6f8e",
+    "purple": "#8b6fd8",
+    "blue": "#3d78ad",
+    "lime": "#7bc67e",
+    "gold": "#e0b23e",
+    "coral": "#e8735c",
+    "line": "#e7ddc2",
+    "inkSoft": "#6b7566"
+  }
+}
