@@ -113,9 +113,23 @@ function buildRingkasan(){
 let ringkasanCharts = {};
 function destroyRingkasanCharts(){ Object.values(ringkasanCharts).forEach(c=>c.destroy()); ringkasanCharts = {}; }
 
+// Tampilkan pesan di tempat grafik kalau Chart.js gagal dimuat, supaya
+// pengguna tidak melihat kotak kosong tanpa penjelasan.
+function showChartFallback(){
+  document.querySelectorAll('canvas').forEach(cv=>{
+    if(cv.dataset.fallbackShown) return;
+    const note = document.createElement('div');
+    note.style.cssText = 'padding:26px 14px;text-align:center;color:var(--ink-soft);font-size:12.5px;';
+    note.innerHTML = '&#128202; Grafik tidak bisa ditampilkan<br><span style="font-size:11.5px;">Chart.js gagal dimuat dari internet. Data tetap bisa dilihat di tabel di bawah.</span>';
+    cv.dataset.fallbackShown = '1';
+    cv.style.display = 'none';
+    if(cv.parentNode) cv.parentNode.appendChild(note);
+  });
+}
+
 function buildRingkasanCharts(months){
   destroyRingkasanCharts();
-  if(!chartReady()) return; // grafik dilewati kalau Chart.js gagal dimuat
+  if(!chartReady()){ showChartFallback(); return; } // grafik dilewati kalau Chart.js gagal dimuat
   const labels = months.map(m=>MONTHS12_SHORT[m]);
   const periodText = months.length===1 ? labels[0] : `${labels[0]}\u2013${labels[labels.length-1]}`;
 

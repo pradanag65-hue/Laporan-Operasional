@@ -64,4 +64,20 @@ function buildFloatyWidget(){
   if(!apiConfigured()){
     showToast('appsScriptUrl belum diisi di config/config.json', 'err');
   }
+
+  // Library grafik/Excel dimuat di LATAR BELAKANG supaya halaman tidak
+  // tertahan menunggu CDN. Begitu siap, grafik digambar ulang.
+  loadLibraries().then(libs=>{
+    if(libs.chartOk){
+      initConstantsFromConfig(); // pasang default Chart.js sekarang setelah tersedia
+      try{ buildRingkasan(); }catch(e){}
+      try{ renderRoute(document.getElementById('routeSelect').value || ROUTE_ORDER[0]); }catch(e){}
+    } else {
+      try{ showChartFallback(); }catch(e){}
+      showToast('Grafik tidak bisa dimuat (jaringan memblokir Chart.js). Tabel & data tetap berfungsi.', 'err');
+    }
+    if(!libs.xlsxOk){
+      showToast('Fitur Excel tidak tersedia. Pakai Export CSV sebagai gantinya.', 'err');
+    }
+  });
 })();

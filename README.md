@@ -22,6 +22,7 @@ Semuanya pakai layanan gratis, tanpa batas masa aktif.
 ├── css/
 │   └── style.css           # seluruh styling
 ├── js/
+│   ├── libs.js             # pemuat Chart.js & SheetJS (CDN cadangan)
 │   ├── config.js           # pemuat config/config.json
 │   ├── utils.js            # format angka, normalisasi data, toast, unduh file
 │   ├── api.js              # komunikasi ke Apps Script
@@ -41,9 +42,12 @@ Semuanya pakai layanan gratis, tanpa batas masa aktif.
 └── .gitignore
 ```
 
-Library eksternal (Chart.js & SheetJS) dimuat dari CDN, jadi repo ini tetap
-ringan. Kalau CDN gagal dimuat, aplikasi tetap jalan — hanya grafik dan fitur
-Excel yang nonaktif.
+Library eksternal (Chart.js & SheetJS) dimuat dari CDN lewat `js/libs.js`,
+jadi repo ini tetap ringan. Loader-nya punya **3 CDN cadangan berantai**
+(jsDelivr → cdnjs → unpkg) dan berjalan di latar belakang, sehingga halaman
+tetap muncul cepat. Kalau semua CDN gagal, aplikasi tetap jalan — tabel dan
+data tetap bisa dipakai, hanya grafik & fitur Excel yang nonaktif, disertai
+pemberitahuan.
 
 ---
 

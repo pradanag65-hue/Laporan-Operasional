@@ -40,7 +40,7 @@ function renderRoute(code){
 
   const pnp = pick('penumpang'), rit = pick('ritase'), lf = pick('loadfactor'), hw = pick('headway'), rtt = pick('rtt'), kec = pick('kecepatan'), km = pick('km');
 
-  if(!chartReady()){ renderRouteTable(labels, {pnp, rit, lf, hw, rtt, kec, km}); return; }
+  if(!chartReady()){ showChartFallback(); renderRouteTable(labels, {pnp, rit, lf, hw, rtt, kec, km}); return; }
   routeCharts.pnp = new Chart(document.getElementById('chartRoutePenumpang'), lineCfg(labels, pnp, COL_TEAL, fmtInt));
   routeCharts.rit = new Chart(document.getElementById('chartRouteRitase'), lineCfg(labels, rit, COL_ORANGE, fmtInt));
   routeCharts.lf  = new Chart(document.getElementById('chartRouteLF'), lineCfg(labels, lf, COL_PINK, fmtPct));
